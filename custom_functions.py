@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 import requests
 import math
+import exceptions
 
 
 def time_to_unixTime(str):
@@ -114,11 +115,3 @@ def get_market_data(startTime, endTime, symbol='BTCUSDT', interval='1d'):
                     symbol=symbol, startTime=start_time + i * interval_time * 1000+(1 if i > 0 else 0), interval=interval, limit=1000)
                 result = np.concatenate((result, history), axis=0)
         return result
-
-
-class MinusTimeError(Exception):
-    pass
-
-
-class MinimalDeltaTimeError(Exception):
-    pass
