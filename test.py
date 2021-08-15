@@ -3,7 +3,9 @@ import requests
 import time
 import datetime
 import numpy as np
-from custom_functions import get_market_data, get_history
+import pandas as pd
+from IPython.display import display
+from get_data import get_market_data, get_history
 
 binance = ccxt.binance()
 ticker = binance.fetch_ticker('ETH/USDT')
@@ -38,8 +40,9 @@ def test_get_market_data():
     history = get_market_data(
         startTime=startTime, endTime=endTime, symbol='BTCUSDT', interval='1h')
 
-    if history.shape == np.zeros((48, 5)).shape:
-        print('test_get_market_data Clear')
+    # if history.shape == np.zeros((48, 5)).shape:
+    #     print('test_get_market_data Clear')
+    display(history)
 
 
 if __name__ == '__main__':
