@@ -93,13 +93,13 @@ def get_market_data(startTime, endTime, symbol, interval):
     # ? parameters 검증
     try:
         if (end_time - start_time) < 0:
-            raise MinusTimeError()
+            raise exceptions.MinusTimeError()
         if (end_time - start_time) < interval_time:
-            raise MinimalDeltaTimeError()
+            raise exceptions.MinimalDeltaTimeError()
 
-    except MinusTimeError:
+    except exceptions.MinusTimeError:
         print('종료 시간은 시작시간보다 나중이어야 합니다.')
-    except MinimalDeltaTimeError:
+    except exceptions.MinimalDeltaTimeError:
         print('종료 시간과 시작시간 간의 간격은 inteval의 크기이상이어야 합니다. ')
 
     # ? 실행
