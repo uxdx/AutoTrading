@@ -84,7 +84,7 @@ def get_market_data(startTime, endTime, symbol, interval):
         symbol(str): 마켓 이름 ex) 'BTCUSDT'
         interval(str): 검색간격 ex) '1d'
     returns:
-        dataframe: limit X 5 크기의 2차원 pandas.dataframe. 
+        dataframe(pd.DataFrame): limit X 5 크기의 2차원 pandas.dataframe. 
     """
     start_time = time_to_unixTime(startTime)
     end_time = time_to_unixTime(endTime)
