@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from IPython.display import display
 from get_data import get_market_data, get_history
-from preprocessing.processing_methods import normalization_min_max
+from methods.preprocessor import normalization_min_max
+from methods.trainset_maker import *
 
 
 class TestClass:
@@ -31,12 +32,12 @@ class TestGetData(TestClass):
               time.time() - self.st, 'sec')
 
 
-class TestProcessingMethods(TestClass):
+class TestPreprocessingMethods(TestClass):
     def test_normalization_min_max(self):
         print('Test "normalization_min_max" method. ')
 
-        startTime = '2021-07-14 00:00:00'
-        endTime = '2021-07-16 00:00:00'
+        startTime = '2021-08-14 00:00:00'
+        endTime = '2021-08-16 00:00:00'
         df = get_market_data(
             startTime=startTime, endTime=endTime, symbol='BTCUSDT', interval='1h')
         normalized = normalization_min_max(df)
@@ -48,6 +49,24 @@ class TestProcessingMethods(TestClass):
               time.time() - self.st, 'sec')
 
 
+class TestTrainsetMakerMethods(TestClass):
+    def test_Ichimoku_Simple(self):
+        print('Test "Ichimoku_Simple" method. ')
+
+        startTime = '2021-08-01 00:00:00'
+        endTime = '2021-08-10 00:00:00'
+        df = get_market_data(
+            startTime=startTime, endTime=endTime, symbol='BTCUSDT', interval='4h')
+        train_data, train_label = Ichimoku_Simple(df)
+
+        assert train_data.shape == np.zeros(130,).shape
+        assert train_label in ['up', 'same', 'down']
+
+        print('Finished test "normalization_min_max" method. ',
+              time.time() - self.st, 'sec')
+
+
 if __name__ == '__main__':
     TestGetData().test_get_market_data()
-    TestProcessingMethods().test_normalization_min_max()
+    TestPreprocessingMethods().test_normalization_min_max()
+    TestTrainsetMakerMethods().test_Ichimoku_Simple()
