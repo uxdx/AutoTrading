@@ -52,7 +52,6 @@ def get_history(symbol, startTime, interval, limit=1):
     """
     res = requests.get('https://api.binance.com/api/v3/klines', params={
         'symbol': symbol, 'interval': interval, 'startTime': time_to_unixTime(startTime), 'limit': limit})
-    print(res)
     data = np.array(res.json())[:, 1:6]  # [open, high ,low ,close ,volume]
     return data
 
@@ -70,7 +69,6 @@ def get_history_as_unixTime(symbol, startTime, interval, limit):
     """
     res = requests.get('https://api.binance.com/api/v3/klines', params={
         'symbol': symbol, 'interval': interval, 'startTime': startTime, 'limit': limit})
-    print(res)
     data = np.array(res.json())[:, 1:6]  # [open, high ,low ,close ,volume]
     return data
 
@@ -84,7 +82,7 @@ def get_market_data(startTime, endTime, symbol, interval):
         symbol(str): 마켓 이름 ex) 'BTCUSDT'
         interval(str): 검색간격 ex) '1d'
     returns:
-        dataframe: limit X 5 크기의 2차원 pandas.dataframe. 
+        dataframe(pd.DataFrame): limit X 5 크기의 2차원 pandas.dataframe. 
     """
     start_time = time_to_unixTime(startTime)
     end_time = time_to_unixTime(endTime)
@@ -104,7 +102,6 @@ def get_market_data(startTime, endTime, symbol, interval):
 
     # ? 실행
     num = (end_time - start_time)/interval_time  # 구해야할 데이터의 크기 즉, 열의 크기
-    print('num: ', num)
     if num <= 1000:
         # print('symbol=', symbol, ' startTime=', startTime,
         #       ' interval=', interval, ' limit=', int(num))
@@ -129,4 +126,5 @@ def get_market_data(startTime, endTime, symbol, interval):
     # ? make dataframe
     dataframe = pd.DataFrame(data, columns=[
         'open', 'high', 'low', 'close', 'volume'])
+    dataframe = dataframe.astype('float')
     return dataframe
