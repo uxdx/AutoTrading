@@ -1,5 +1,6 @@
-"""여기에 visualization용 함수를 개발adsfasdfa
+"""matplotlib을 이용한 visualization코드 작성
 """
+import matplotlib 
 
 def visualize(array):
     """
