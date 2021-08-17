@@ -3,8 +3,8 @@
 import time
 import numpy as np
 from getdata import get_market_data
-from methods.preprocessor import normalization_min_max
-from methods.trainsetmaker import ichimoku_simple
+from methods.preprocessor import normalization_min_max, identity_function
+from methods.datamaker import ichimoku_simple, PastFutureDataMaker
 
 
 class TestClass:
@@ -76,8 +76,26 @@ class TestTrainsetMakerMethods(TestClass):
         print('Finished test "normalization_min_max" method. ',
               time.time() - self.test_start_time, 'sec')
 
+class TestDataMaker(TestClass):
+    """
+    """
+    def test_past_future_data_maker(self):
+        """
+        """
+        start_time = '2021-08-01 00:00:00'
+        end_time = '2021-08-10 00:00:00'
+        dataframe = get_market_data(
+            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
+        # print(len(dataframe))
+
+        maker = PastFutureDataMaker(dataframe,26,9,identity_function)
+
+        bundle_x, bundle_y = maker.make_bundle()
+        print(bundle_x.shape)
+        print(bundle_y)
 
 if __name__ == '__main__':
-    TestGetData().test_get_market_data()
-    TestPreprocessingMethods().test_normalization_min_max()
-    TestTrainsetMakerMethods().test_ichimoku_simple()
+    # TestGetData().test_get_market_data()
+    # TestPreprocessingMethods().test_normalization_min_max()
+    # TestTrainsetMakerMethods().test_ichimoku_simple()
+    TestDataMaker().test_past_future_data_maker()
