@@ -63,7 +63,6 @@ class PastFutureDataMaker(DataMaker):
         bundle_x, bundle_y = [], []
         df = self.data_frame
         while(len(df) >= self.total_length):
-            print(len(df))
             x, y = self.past_future_simple(df[len(df)-self.total_length-1:len(df)-1])
             bundle_x.append(x)
             bundle_y.append(y)
