@@ -5,10 +5,10 @@ import pandas as pd
 from IPython.display import display
 from get_data import get_market_data, get_history
 from methods.preprocessor import normalization_min_max
-from methods.trainset_maker import *
+from methods.trainsetmaker import *
 
 
-class TestClass:
+class TestClass(object):
     """
     모든 테스트 클래스는 이 클래스를 상속함.
     모든 테스트 클래스는 self.st 를 이용해서 테스트 시작시간을 구할 수 있음.
