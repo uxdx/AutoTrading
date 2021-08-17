@@ -1,0 +1,111 @@
+"""
+train set 1개를 만드는 알고리즘에 대한 구현
+"""
+import numpy as np
+from exceptions import InvalidDataFrameSizeError
+
+class DataMaker:
+    def make_bundle(self):
+        pass
+class PastFutureDataMaker(DataMaker):
+    def __init__(self, data_frame, past_length, future_length, preprocessor) -> None:
+        """
+        Parameters
+        ----------
+        data_frame : pd.DataFrame
+        past_length : Int
+            과거에 해당되는 데이터의 크기
+        future_length : Int
+            미래에 해당되는 데이터의 크기
+        preprocessor : Function
+            데이터 전처리에 사용될 함수
+        """
+        self.data_frame = data_frame
+        self.past_length = past_length
+        self.future_length = future_length
+        self.total_length = past_length + future_length
+        self.preprocessor = preprocessor
+
+    def past_future_simple(self, dataframe):
+        """dataframe을 과거와 미래로 각각의 length만큼으로 이등분하는 방식
+        simple형은 출력을 ['up', 'same', 'down'] 중 하나의 값을 갖도록 하는 형태
+
+        Parameters
+        ----------
+        dataframe : pd.DataFrame
+
+
+        Returns
+        -------
+        x : 1-D np.Array
+            과거 데이터를 flatten한 numpy 배열
+        y : String
+            ['up', 'same', 'down'] 중 하나의 값
+        """
+        #* 데이터 전처리
+        dataframe = self.preprocessor(dataframe)
+        assert len(dataframe) >= self.total_length
+
+        #* make x
+        x = np.array(dataframe[0:self.past_length].to_numpy().flatten())
+        #* make y
+        if dataframe.iloc[self.past_length-1]['open'] < dataframe.iloc[self.total_length-1]['close']:
+            y = 'up'
+        elif dataframe.iloc[self.past_length-1]['open'] > dataframe.iloc[self.total_length-1]['close']:
+            y = 'down'
+        else:
+            y = 'same'
+
+        return x, y
+
+    # override
+    def make_bundle(self):
+        bundle_x, bundle_y = [], []
+        df = self.data_frame
+        while(len(df) >= self.total_length):
+            x, y = self.past_future_simple(df[len(df)-self.total_length-1:len(df)-1])
+            bundle_x.append(x)
+            bundle_y.append(y)
+            df = df[:len(df)-self.total_length]
+
+        result_x = np.array(bundle_x)
+        result_y = np.array(bundle_y)
+
+        return result_x, result_y
+
+
+
+def ichimoku_simple(dataframe):
+    """
+    일목산인 이론을 참고한 dataframe 분류 알고리즘
+    의 간소화 버전
+    dataframe을 시간순서대로 26:9로 분류 후
+    train_data는 26개의 행을 flatten한 26*5=130 사이즈 배열
+    y는 9개 행의 처음과 끝만을 비교해서 ['up', 'same', 'down'] 중 하나의 문자열
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+
+    Returns
+    -------
+    train_data : np.array
+        26*5=130x1 사이즈의 배열
+    y : String
+    """
+    if len(dataframe) > 35:
+        # dataframe 사이즈가 35(26+9)보다 클 경우, 오래된 행은 삭제
+        dataframe = dataframe[len(dataframe)-36:len(dataframe)-1]
+        train_data, y = ichimoku_simple(dataframe)
+    elif len(dataframe) < 35:
+        raise InvalidDataFrameSizeError()
+    else:
+        train_data = np.array(dataframe[0:26].to_numpy().flatten())
+        if dataframe.iloc[25]['open'] < dataframe.iloc[34]['close']:
+            y = 'up'
+        elif dataframe.iloc[25]['open'] > dataframe.iloc[34]['close']:
+            y = 'down'
+        else:
+            y = 'same'
+
+    return train_data, y

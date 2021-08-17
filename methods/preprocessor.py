@@ -58,3 +58,8 @@ def normalization_z_score(dataFrame):
         dataFrame(pd.DataFrame):
 
     """
+
+def identity_function(dataframe):
+    """항등함수
+    """
+    return dataframe
