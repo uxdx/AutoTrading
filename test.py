@@ -30,7 +30,7 @@ class TestGetData(TestClass):
         dataframe = get_market_data(
             start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
         assert dataframe.shape == np.zeros((48, 5)).shape
-
+        print(dataframe)
         print('Finished test "get_market_data" method. ',
               time.time() - self.test_start_time, 'sec')
 
