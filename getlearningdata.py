@@ -6,14 +6,14 @@
 """
 from methods.preprocessor import *
 from methods.trainsetmaker import *
-def make_trainset_bundle(dataframe, preprocessor, trainset_maker, bundle_size):
+def make_trainset_bundle(dataframe, preprocessor, trainsetmaker, bundle_size):
     """
     trainset 묶음을 반환
-    
+
     """
     pass
 
-def make_trainset(dataframe, preprocessor, trainset_maker):
+def make_trainset(dataframe, preprocessor, trainsetmaker):
     """가져온 데이터를 가공해서 머신러닝에 사용할 수 있는 training set 1개를 반환
 
 
@@ -23,7 +23,7 @@ def make_trainset(dataframe, preprocessor, trainset_maker):
         가공할 데이터
     preprocessor : Function
         전처리용 함수
-    trainset_maker : Function
+    trainsetmaker : Function
         train_set을 만드는 함수
 
 
@@ -36,6 +36,6 @@ def make_trainset(dataframe, preprocessor, trainset_maker):
     """
 
     df = preprocessor(dataframe)
-    train_data, train_label = trainset_maker(df)
+    train_data, train_label = trainsetmaker(df)
 
     return train_data, train_label
