@@ -9,9 +9,12 @@ class DataMaker:
         self.data_frame = data_frame
         self.preprocessor = preprocessor
     def make_bundle(self):
+        """클래스 생성자의 인수정보를 가지고 데이터셋을 제작,
+        데이터셋을 번들형태로 만들어 반환
+        """
         pass
 class PastFutureDataMaker(DataMaker):
-    def __init__(self, data_frame, past_length, future_length, preprocessor) -> None:
+    def __init__(self, data_frame, past_length, future_length, preprocessor):
         """
         Parameters
         ----------
@@ -63,6 +66,18 @@ class PastFutureDataMaker(DataMaker):
 
     # override
     def make_bundle(self):
+        """
+        Returns
+        -------
+        result_x : 2-D np.Array
+            print(result_x.shape)
+
+            =>(N, (past_length+future_length)*5)
+        result_y : 1-D np.Array
+            print(result_y.shape)
+
+            =>(N, )
+        """
         bundle_x, bundle_y = [], []
         df = self.data_frame
         while(len(df) >= self.total_length):
@@ -75,6 +90,7 @@ class PastFutureDataMaker(DataMaker):
         result_y = np.array(bundle_y)
 
         return result_x, result_y
+
 
 
 #! 쓰이지 않음
