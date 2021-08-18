@@ -1,10 +1,13 @@
 """
-train set 1개를 만드는 알고리즘에 대한 구현
+Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
 import numpy as np
 from exceptions import InvalidDataFrameSizeError
 
 class DataMaker:
+    def __init__(self, data_frame, preprocessor) :
+        self.data_frame = data_frame
+        self.preprocessor = preprocessor
     def make_bundle(self):
         pass
 class PastFutureDataMaker(DataMaker):
@@ -74,7 +77,7 @@ class PastFutureDataMaker(DataMaker):
         return result_x, result_y
 
 
-
+#! 쓰이지 않음
 def ichimoku_simple(dataframe):
     """
     일목산인 이론을 참고한 dataframe 분류 알고리즘
