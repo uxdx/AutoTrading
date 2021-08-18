@@ -1,8 +1,9 @@
 """
 Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
+from data.dataset import DataSet
 import numpy as np
-from exceptions import InvalidDataFrameSizeError
+# from exceptions import InvalidDataFrameSizeError
 
 class DataMaker:
     def __init__(self, data_frame, preprocessor) :
@@ -69,14 +70,7 @@ class PastFutureDataMaker(DataMaker):
         """
         Returns
         -------
-        result_x : 2-D np.Array
-            print(result_x.shape)
-
-            =>(N, (past_length+future_length)*5)
-        result_y : 1-D np.Array
-            print(result_y.shape)
-
-            =>(N, )
+        dataset : DataSet
         """
         bundle_x, bundle_y = [], []
         df = self.data_frame
@@ -89,7 +83,7 @@ class PastFutureDataMaker(DataMaker):
         result_x = np.array(bundle_x)
         result_y = np.array(bundle_y)
 
-        return result_x, result_y
+        return DataSet(result_x, result_y)
 
 
 
@@ -117,7 +111,8 @@ def ichimoku_simple(dataframe):
         dataframe = dataframe[len(dataframe)-36:len(dataframe)-1]
         train_data, y = ichimoku_simple(dataframe)
     elif len(dataframe) < 35:
-        raise InvalidDataFrameSizeError()
+        # raise InvalidDataFrameSizeError()
+        pass
     else:
         train_data = np.array(dataframe[0:26].to_numpy().flatten())
         if dataframe.iloc[25]['open'] < dataframe.iloc[34]['close']:
