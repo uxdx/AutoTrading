@@ -93,8 +93,9 @@ class TestDataMaker(TestClass):
 
         dataset = maker.make_bundle()
 
+        # print(dataset.x)
         assert dataset.x.shape == np.zeros((6, 130)).shape
-        assert dataset.x.shape == np.zeros((6,)).shape
+        assert dataset.y.shape == np.zeros((6,)).shape
 
         print('Finished test "PastFutureDataMaker" class. ',
               time.time() - self.test_start_time, 'sec')
@@ -107,8 +108,8 @@ class TestDataSetSaver(TestClass):
     TestClass : [type]
         [description]
     """
-    def test_data_set_saver(self):
-        print('Test "DataSetSaver" class. ')
+    def test_data_set_save(self):
+        print('Test "DataSet.save()" method. ')
         start_time = '2021-08-01 00:00:00'
         end_time = '2021-08-10 00:00:00'
         dataframe = get_market_data(
@@ -119,14 +120,28 @@ class TestDataSetSaver(TestClass):
 
         dataset = maker.make_bundle()
 
-        result = dataset.save('./', 'ds1')
+        result = dataset.save('./temp/', 'ds1')
 
-        assert result == 0
+        print('Finished test "DataSet.save()" method. ',
+              time.time() - self.test_start_time, 'sec')
 
+    def test_data_set_load(self):
+        print('Test "DataSet.load()" method. ')
+        dataset = DataSet()
+        dataset.load('./temp/', 'ds1')
+
+        x, y = dataset.x, dataset.y
+
+        print(x.shape)
+        print(y.shape)
+
+        print('Finished test "DataSet.load()" method. ',
+              time.time() - self.test_start_time, 'sec')
 
 if __name__ == '__main__':
     # TestGetData().test_get_market_data()
     # TestPreprocessingMethods().test_normalization_min_max()
     # TestTrainsetMakerMethods().test_ichimoku_simple()
     # TestDataMaker().test_past_future_data_maker()
-    TestDataSetSaver().test_data_set_saver()
+    # TestDataSetSaver().test_data_set_save()
+    TestDataSetSaver().test_data_set_load()
