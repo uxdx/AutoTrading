@@ -1,5 +1,19 @@
+"""DataSet 클래스는 data를 보관하는 클래스
+
+Usage
+-----
+usage 1 : load()를 이용
+    dataset = DataSet()
+    dataset.load('.temp/','ds1')
+
+    print(dataset.x)
+    print(dataset.y)
+
+usage 2 : 새 데이터를 생성
+    dataset = DataSet(x=np.array([[]]),y=np.array([]))
+"""
 class DataSet:
-    def __init__(self, set_x=None, set_y=None):
+    def __init__(self, x=None, y=None):
         """
         Parameters
         ----------
@@ -14,9 +28,10 @@ class DataSet:
 
             =>(N, )
         """
-        self.__x = set_x
-        self.__y = set_y
-
+        self.__x = x
+        self.__y = y
+    def __str__(self) :
+        return '(x.shape: {}, y.shape: {})'.format(self.x.shape, self.y.shape)
     @property
     def x(self): #getter
         return self.__x
@@ -68,11 +83,15 @@ class DataSet:
         import numpy as np
 
         path = ''.join([path,name,'.npz'])
+        try:
+            loaded = np.load(path)
 
-        loaded = np.load(path)
-
-        self.__x = loaded['x']
-        self.__y = loaded['y']
-        loaded.close()
+            self.__x = loaded['x']
+            self.__y = loaded['y']
+            loaded.close()
+        except FileNotFoundError:
+            print(path, ' 파일을 찾을 수 없습니다. 정확한 경로와 이름을 지정해주세요.')
+            import sys
+            sys.exit(0)
 
 # class TrainSet(DataSet):

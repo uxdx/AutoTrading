@@ -128,12 +128,11 @@ class TestDataSetSaver(TestClass):
     def test_data_set_load(self):
         print('Test "DataSet.load()" method. ')
         dataset = DataSet()
-        dataset.load('./temp/', 'ds1')
+        dataset.load('./temp/', 'ds2')
 
         x, y = dataset.x, dataset.y
 
-        print(x.shape)
-        print(y.shape)
+        print(dataset)
 
         print('Finished test "DataSet.load()" method. ',
               time.time() - self.test_start_time, 'sec')
