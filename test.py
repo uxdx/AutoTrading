@@ -2,9 +2,9 @@
 """
 import time
 import numpy as np
-from getdata import get_market_data
-from methods.preprocessor import normalization_min_max, identity_function
-from methods.datamaker import ichimoku_simple, PastFutureDataMaker
+from data.marketdata import get_market_data
+from data.preprocessor import normalization_min_max, identity_function
+from data.datasetmaker import ichimoku_simple, PastFutureDataMaker
 
 
 class TestClass:
