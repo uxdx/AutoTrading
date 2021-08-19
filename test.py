@@ -55,27 +55,6 @@ class TestPreprocessingMethods(TestClass):
         print('Finished test "normalization_min_max" method. ',
               time.time() - self.test_start_time, 'sec')
 
-
-class TestTrainsetMakerMethods(TestClass):
-    """Test Class to test trainsetmaker.py module
-    """
-    def test_ichimoku_simple(self):
-        """
-        """
-        print('Test "Ichimoku_Simple" method. ')
-
-        start_time = '2021-08-01 00:00:00'
-        end_time = '2021-08-10 00:00:00'
-        dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='4h')
-        train_data, train_label = ichimoku_simple(dataframe)
-
-        assert train_data.shape == np.zeros(130,).shape
-        assert train_label in ['up', 'same', 'down']
-
-        print('Finished test "normalization_min_max" method. ',
-              time.time() - self.test_start_time, 'sec')
-
 class TestDataMaker(TestClass):
     """
     """
