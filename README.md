@@ -6,6 +6,11 @@ data/ : 머신러닝에 필요한 데이터를 구성하고 저장하고, 가져
   getmarketdata.py : binance api 등에서 마켓 자료를 가져오는 모듈
   datasetmaker.py : 마켓 데이터를 머신러닝에 쓸 수 있는 형태의 데이터셋으로 만드는 모듈
   
+# Prerequisite
+These modules require: numpy, pandas 
+
+    pip3 install -r requirements.txt
+  
 # Usage
 
 1. Get binance market data 
