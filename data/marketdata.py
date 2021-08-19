@@ -8,7 +8,7 @@ import math
 import requests
 import numpy as np
 import pandas as pd
-import exceptions
+
 
 
 def get_market_data(start_time, end_time, symbol, interval):
@@ -36,13 +36,13 @@ def get_market_data(start_time, end_time, symbol, interval):
     # ? parameters 검증
     try:
         if (end_time_unix - start_time_unix) < 0:
-            raise exceptions.MinusTimeError()
+            raise MinusTimeError()
         if (end_time_unix - start_time_unix) < interval_time:
-            raise exceptions.MinimalDeltaTimeError()
+            raise MinimalDeltaTimeError()
 
-    except exceptions.MinusTimeError:
+    except MinusTimeError:
         print('종료 시간은 시작시간보다 나중이어야 합니다.')
-    except exceptions.MinimalDeltaTimeError:
+    except MinimalDeltaTimeError:
         print('종료 시간과 시작시간 간의 간격은 inteval의 크기이상이어야 합니다. ')
 
     # ? 실행
@@ -157,3 +157,9 @@ def get_history_as_unixtime(symbol, start_time, interval, limit):
     data = np.array(res.json())[:, 1:6]  # [open, high ,low ,close ,volume]
     return data
 
+class MinusTimeError(Exception):
+    pass
+
+
+class MinimalDeltaTimeError(Exception):
+    pass

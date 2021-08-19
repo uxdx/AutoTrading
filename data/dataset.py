@@ -12,6 +12,9 @@ usage 1 : load()를 이용
 usage 2 : 새 데이터를 생성
     dataset = DataSet(x=np.array([[]]),y=np.array([]))
 """
+import pickle
+
+
 class DataSet:
     def __init__(self, x=None, y=None):
         """
@@ -63,12 +66,15 @@ class DataSet:
             ex) 'dataset_01'
         """
         import numpy as np
+        import pickle
 
-        path = ''.join([path,name])
+        path = ''.join([path,name,'.bin'])
 
-        np.savez(path, x=self.x, y=self.y)
+        # np.savez(path, x=self.x, y=self.y)
+        with open(path, 'wb') as f:
+            pickle.dump(self,f)
 
-    def load(self, path, name):
+    def load(self, path, name, flatten=False, normalize=False, one_hot_incoding=False):
         """파일로부터 데이터셋을 로드
 
         Parameters
@@ -79,16 +85,26 @@ class DataSet:
         name : String
             불러올 파일 이름
             ex) 'ds1'
+        flatten : bool
+            데이터를 1차원으로 평탄화해서 불러올 지
+        normalize : bool
+            데이터를 정규화 할지 여부
+        one_hot_incoding : bool
+            y값을 배열로 표현할 지, 값으로 표현할 지 여부
+
+        Returns
+        -------
+        data : DataSet
+            파일로부터 읽어 온 데이터셋
         """
-        import numpy as np
+        import pickle
 
-        path = ''.join([path,name,'.npz'])
+        path = ''.join([path,name,'.bin'])
         try:
-            loaded = np.load(path)
+            with open(path, 'rb') as f:
+                data = pickle.load(f)
 
-            self.__x = loaded['x']
-            self.__y = loaded['y']
-            loaded.close()
+            return data
         except FileNotFoundError:
             print(path, ' 파일을 찾을 수 없습니다. 정확한 경로와 이름을 지정해주세요.')
             import sys
