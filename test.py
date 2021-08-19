@@ -30,7 +30,7 @@ class TestGetData(TestClass):
         dataframe = get_market_data(
             start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
         assert dataframe.shape == np.zeros((48, 5)).shape
-
+        # print(dataframe)
         print('Finished test "get_market_data" method. ',
               time.time() - self.test_start_time, 'sec')
 
@@ -89,12 +89,13 @@ class TestDataMaker(TestClass):
             start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
         # print(len(dataframe))
 
-        maker = PastFutureDataMaker(dataframe,26,9,normalization_min_max)
+        maker = PastFutureDataMaker(dataframe,26,9)
 
         dataset = maker.make_bundle()
-
-        # print(dataset.x)
-        assert dataset.x.shape == np.zeros((6, 130)).shape
+        print(dataset.x)
+        print(dataset.x.shape)
+        print(dataset.y.shape)
+        assert dataset.x.shape == np.zeros((6, 26,5)).shape
         assert dataset.y.shape == np.zeros((6,)).shape
 
         print('Finished test "PastFutureDataMaker" class. ',
@@ -140,7 +141,6 @@ class TestDataSetSaver(TestClass):
 if __name__ == '__main__':
     # TestGetData().test_get_market_data()
     # TestPreprocessingMethods().test_normalization_min_max()
-    # TestTrainsetMakerMethods().test_ichimoku_simple()
-    # TestDataMaker().test_past_future_data_maker()
+    TestDataMaker().test_past_future_data_maker()
     # TestDataSetSaver().test_data_set_save()
-    TestDataSetSaver().test_data_set_load()
+    # TestDataSetSaver().test_data_set_load()

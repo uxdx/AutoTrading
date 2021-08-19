@@ -68,7 +68,7 @@ class DataSet:
 
         np.savez(path, x=self.x, y=self.y)
 
-    def load(self, path, name):
+    def load(self, path, name, flatten=False, normalize=False, one_hot_incoding=False):
         """파일로부터 데이터셋을 로드
 
         Parameters
@@ -79,6 +79,12 @@ class DataSet:
         name : String
             불러올 파일 이름
             ex) 'ds1'
+        flatten : bool
+            데이터를 1차원으로 평탄화해서 불러올 지
+        normalize : bool
+            데이터를 정규화 할지 여부
+        one_hot_incoding : bool
+            y값을 배열로 표현할 지, 값으로 표현할 지 여부
         """
         import numpy as np
 
