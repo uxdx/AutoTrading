@@ -117,7 +117,7 @@ class TestDataSetSaver(TestClass):
             start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
         # print(len(dataframe))
 
-        maker = PastFutureDataMaker(dataframe,26,9,normalization_min_max)
+        maker = PastFutureDataMaker(dataframe,26,9)
 
         dataset = maker.make_bundle()
 
@@ -128,8 +128,7 @@ class TestDataSetSaver(TestClass):
 
     def test_data_set_load(self):
         print('Test "DataSet.load()" method. ')
-        dataset = DataSet()
-        dataset.load('./temp/', 'ds2')
+        dataset = DataSet().load('./temp/', 'ds1')
 
         x, y = dataset.x, dataset.y
 
@@ -141,6 +140,6 @@ class TestDataSetSaver(TestClass):
 if __name__ == '__main__':
     # TestGetData().test_get_market_data()
     # TestPreprocessingMethods().test_normalization_min_max()
-    TestDataMaker().test_past_future_data_maker()
+    # TestDataMaker().test_past_future_data_maker()
     # TestDataSetSaver().test_data_set_save()
-    # TestDataSetSaver().test_data_set_load()
+    TestDataSetSaver().test_data_set_load()
