@@ -1,3 +1,2 @@
-ccxt # connect to binance api 
 numpy 
 pandas # use dataframe
