@@ -8,7 +8,7 @@ import math
 import requests
 import numpy as np
 import pandas as pd
-import exceptions
+
 
 
 def get_market_data(start_time, end_time, symbol, interval):
@@ -157,3 +157,9 @@ def get_history_as_unixtime(symbol, start_time, interval, limit):
     data = np.array(res.json())[:, 1:6]  # [open, high ,low ,close ,volume]
     return data
 
+class MinusTimeError(Exception):
+    pass
+
+
+class MinimalDeltaTimeError(Exception):
+    pass
