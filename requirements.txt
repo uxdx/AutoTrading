@@ -1,4 +1,3 @@
 ccxt # connect to binance api 
 numpy 
-ipython # visualization
 pandas # use dataframe

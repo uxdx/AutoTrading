@@ -133,13 +133,13 @@ class TestDataSetSaver(TestClass):
         x, y = dataset.x, dataset.y
 
         print(dataset)
-
+        print('x.shape: ',x.shape, 'y.shape: ', y.shape)
         print('Finished test "DataSet.load()" method. ',
               time.time() - self.test_start_time, 'sec')
 
 if __name__ == '__main__':
-    TestGetData().test_get_market_data()
+    # TestGetData().test_get_market_data()
     # TestPreprocessingMethods().test_normalization_min_max()
-    TestDataMaker().test_past_future_data_maker()
-    TestDataSetSaver().test_data_set_save()
+    # TestDataMaker().test_past_future_data_maker()
+    # TestDataSetSaver().test_data_set_save()
     TestDataSetSaver().test_data_set_load()
