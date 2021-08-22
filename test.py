@@ -2,10 +2,7 @@
 """
 import time
 import numpy as np
-from data.marketdata import get_market_data
-from data.preprocessor import normalization_min_max, identity_function
-from data.datasetmaker import ichimoku_simple, PastFutureDataMaker
-from data.dataset import DataSet
+from utils.marketdata import get_market_data
 
 class TestClass:
     """
@@ -28,97 +25,12 @@ class TestGetData(TestClass):
         start_time = '2021-07-14 00:00:00'
         end_time = '2021-07-16 00:00:00'
         dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
-        assert dataframe.shape == np.zeros((48, 5)).shape
+            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='30m')
+        assert dataframe.shape == np.zeros((96, 5)).shape
         # print(dataframe)
         print('Finished test "get_market_data" method. ',
               time.time() - self.test_start_time, 'sec')
 
 
-class TestPreprocessingMethods(TestClass):
-    """Test Class to test preprocessor.py module
-    """
-    def test_normalization_min_max(self):
-        """
-        """
-        print('Test "normalization_min_max" method. ')
-
-        start_time = '2021-08-14 00:00:00'
-        end_time = '2021-08-16 00:00:00'
-        dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
-        normalized = normalization_min_max(dataframe)
-
-        # print(type(normalized.max()))
-        for _, value in normalized.max().items():
-            assert 0.0 <= value <= 1.0
-        print('Finished test "normalization_min_max" method. ',
-              time.time() - self.test_start_time, 'sec')
-
-class TestDataMaker(TestClass):
-    """
-    """
-    def test_past_future_data_maker(self):
-        """
-        """
-        print('Test "PastFutureDataMaker" class. ')
-        start_time = '2021-08-01 00:00:00'
-        end_time = '2021-08-10 00:00:00'
-        dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
-        # print(len(dataframe))
-
-        maker = PastFutureDataMaker(dataframe,26,9)
-
-        dataset = maker.make_bundle()
-        print(dataset.x)
-        print(dataset.x.shape)
-        print(dataset.y.shape)
-        assert dataset.x.shape == np.zeros((6, 26,5)).shape
-        assert dataset.y.shape == np.zeros((6,)).shape
-
-        print('Finished test "PastFutureDataMaker" class. ',
-              time.time() - self.test_start_time, 'sec')
-
-class TestDataSetSaver(TestClass):
-    """[summary]
-
-    Parameters
-    ----------
-    TestClass : [type]
-        [description]
-    """
-    def test_data_set_save(self):
-        print('Test "DataSet.save()" method. ')
-        start_time = '2021-08-01 00:00:00'
-        end_time = '2021-08-10 00:00:00'
-        dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='1h')
-        # print(len(dataframe))
-
-        maker = PastFutureDataMaker(dataframe,26,9)
-
-        dataset = maker.make_bundle()
-
-        result = dataset.save('./temp/', 'ds1')
-
-        print('Finished test "DataSet.save()" method. ',
-              time.time() - self.test_start_time, 'sec')
-
-    def test_data_set_load(self):
-        print('Test "DataSet.load()" method. ')
-        dataset = DataSet().load('./temp/', 'ds1')
-
-        x, y = dataset.x, dataset.y
-
-        print(dataset)
-        print('x.shape: ',x.shape, 'y.shape: ', y.shape)
-        print('Finished test "DataSet.load()" method. ',
-              time.time() - self.test_start_time, 'sec')
-
 if __name__ == '__main__':
-    # TestGetData().test_get_market_data()
-    # TestPreprocessingMethods().test_normalization_min_max()
-    # TestDataMaker().test_past_future_data_maker()
-    # TestDataSetSaver().test_data_set_save()
-    TestDataSetSaver().test_data_set_load()
+    TestGetData().test_get_market_data()

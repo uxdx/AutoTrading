@@ -46,7 +46,7 @@ def get_market_data(start_time, end_time, symbol, interval):
         print('종료 시간과 시작시간 간의 간격은 inteval의 크기이상이어야 합니다. ')
 
     # ? 실행
-    num = (end_time_unix - start_time_unix)/interval_time  # 구해야할 데이터의 크기 즉, 열의 크기
+    num = (end_time_unix - start_time_unix)/interval_time  # 구해야할 데이터의 크기 즉, 행의 길이
     if num <= 1000:
         # print('symbol=', symbol, ' startTime=', startTime,
         #       ' interval=', interval, ' limit=', int(num))
@@ -69,8 +69,13 @@ def get_market_data(start_time, end_time, symbol, interval):
         data = result
 
     # ? make dataframe
+    index = time_index(start_time, end_time, interval)
+    print(num)
+    print(data.shape)
+    print(index.shape)
+    
     dataframe = pd.DataFrame(data, columns=[
-        'open', 'high', 'low', 'close', 'volume'])
+        'open', 'high', 'low', 'close', 'volume'],index=index[:-1])
     dataframe = dataframe.astype('float')
     return dataframe
 
@@ -92,19 +97,23 @@ def time_to_unixtime(str):
         str, '%Y-%m-%d %H:%M:%S').timetuple())) * 1000
 
 
-def interval_to_deltatime(interval):
+def interval_to_deltatime(interval: str):
     """
     #! 유연한 처리가 가능하도록 수정필요.
     """
     result = 0
-    if interval == '1d':
-        result = 86400
-    elif interval == '4h':
-        result = 14400
-    elif interval == '1h':
-        result = 3600
-    elif interval == '1m':
-        result = 60
+    if interval.__contains__('d') | interval.__contains__('D'):
+        result = 86400 * int(interval.replace('d', ' ').replace('D', ' '))
+
+    elif interval.__contains__('h') | interval.__contains__('H'):
+        result = 3600 * int(interval.replace('h', ' ').replace('H', ' '))
+
+    elif interval.__contains__('m') | interval.__contains__('M'):
+        result = 60 * int(interval.replace('m', ' ').replace('M', ' '))
+
+    elif interval.__contains__('s') | interval.__contains__('S'):
+        result = 1 * int(interval.replace('s', ' ').replace('S', ' '))
+
     return result * 1000
 
 
@@ -156,6 +165,48 @@ def get_history_as_unixtime(symbol, start_time, interval, limit):
         'symbol': symbol, 'interval': interval, 'start_time': start_time, 'limit': limit})
     data = np.array(res.json())[:, 1:6]  # [open, high ,low ,close ,volume]
     return data
+
+def time_index(start_time:str, end_time:str, interval:str):
+    """데이터프레임의 index 부분 Generator
+
+    Parameters
+    ----------
+    start_time : str 
+        e.g. 2018-01-01 00:00:00
+    end_time : str
+        [description]
+    interval : str 
+        e.g. 4h
+    
+    Returns
+    -------
+    TimeDeltaIndex
+    """
+
+    def interval_checker(interval: str):
+        """pd.timedelta_range의 freq 인자에 맞게 interval의 형식을 수정.
+
+        Parameters
+        ----------
+        interval : str
+            like '4h', '30m', '1d' ...
+
+        Returns
+        -------
+        str
+            '4h', '30T', '1d' ...
+        """
+        if interval.__contains__('m'):
+            interval = interval.replace('m','T')
+        return interval
+    
+    start_datetime = datetime.datetime.fromisoformat(start_time)
+    end_datetime = datetime.datetime.fromisoformat(end_time)
+
+    index = pd.timedelta_range(start='0 days', end=end_datetime-start_datetime,freq=interval_checker(interval))
+    index = index.__add__(start_datetime)
+
+    return index
 
 class MinusTimeError(Exception):
     pass
