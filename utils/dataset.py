@@ -74,7 +74,7 @@ class DataSet:
         with open(path, 'wb') as f:
             pickle.dump(self,f)
 
-    def load(self, path, name, flatten=False, normalize=False, one_hot_incoding=False):
+    def load(path, name, flatten=False, normalize=False, one_hot_incoding=False):
         """파일로부터 데이터셋을 로드
 
         Parameters

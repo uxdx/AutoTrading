@@ -13,7 +13,7 @@ import os
 import torch
 from typing import Any, Callable, List, Optional, Union, Tuple
 from torch.utils.data import Dataset
-from utils.datasetloader import DataSetLoader
+from utils.dataset import DataSet
 
 class PastFuture(Dataset):
     def __init__(
@@ -33,7 +33,9 @@ class PastFuture(Dataset):
         self.data, self.targets = self._load_data()
 
     def _load_data(self):
-        data, targets = DataSetLoader.load()
+        dataset = DataSetLoader.load()
+        data = dataset.x
+        targets = dataset.y
 
         return data, targets
 

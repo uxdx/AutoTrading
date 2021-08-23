@@ -26,7 +26,7 @@ def get_market_data(start_time, end_time, symbol, interval):
             검색간격 ex) '1d'
     Returns
     -------
-    dataframe : 2-D DataFrame
+    market_data : 2-D DataFrame
         limit X 5 크기의 2차원 pandas.dataframe.
     """
     start_time_unix = time_to_unixtime(start_time)
@@ -71,10 +71,10 @@ def get_market_data(start_time, end_time, symbol, interval):
     # ? make dataframe
     index = time_index(start_time, end_time, interval)
     
-    dataframe = pd.DataFrame(data, columns=[
+    market_data = pd.DataFrame(data, columns=[
         'open', 'high', 'low', 'close', 'volume'],index=index[:-1])
-    dataframe = dataframe.astype('float')
-    return dataframe
+    market_data = market_data.astype('float')
+    return market_data
 
 
 def time_to_unixtime(str):

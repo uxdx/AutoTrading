@@ -1,6 +1,5 @@
 """모듈 및 함수 검증을 위한 테스트 코드
 """
-from utils.datasetloader import DataSetLoader
 import time
 import numpy as np
 import pandas as pd
@@ -15,7 +14,6 @@ class TestClass:
 
     def __init__(self):
         self.test_start_time = time.time()
-
 
 class TestGetData(TestClass):
     """Test Class to test getdata.py module
@@ -39,15 +37,21 @@ class TestGetData(TestClass):
 
 class TestDatasetmaker(TestClass):
     def test(self):
-        from utils.datasetmaker import PastFutureDataMaker
+        from utils.datasetmaker import make_dataset, past_future
+        start_time = '2021-07-14 00:00:00'
+        end_time = '2021-08-16 00:00:00'
         # print(sample.SAMPLE_DATAFRAME)
-        maker = PastFutureDataMaker(sample.SAMPLE_DATAFRAME,past_length=10, future_length=5)
-        maker.save('./assets/', 'df1')
-        DataSetLoader().load('./assets/df1.bin')
+        maker = make_dataset(past_future,start_time,end_time,'BTCUSDT','1h', 10, 5)
 
-        
+class TestDatasetloader(TestClass):
+    def test(self):
+        from utils.dataset import DataSet
+        dataset = DataSet.load(path='./assets/',name='past_future10:5_2021-07-14 00:00:00_2021-08-16 00:00:00_1h')
+
+        print(dataset)
 
 
 if __name__ == '__main__':
-    TestGetData().test_get_market_data()
-    TestDatasetmaker().test()
+    # TestGetData().test_get_market_data()
+    # TestDatasetmaker().test()
+    TestDatasetloader().test()
