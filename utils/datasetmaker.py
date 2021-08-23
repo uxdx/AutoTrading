@@ -1,7 +1,7 @@
 """
 Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
-from data.dataset import DataSet
+from utils.dataset import DataSet
 import numpy as np
 # from exceptions import InvalidDataFrameSizeError
 
@@ -11,6 +11,17 @@ class DataMaker:
     def make_bundle(self):
         """클래스 생성자의 인수정보를 가지고 데이터셋을 제작,
         데이터셋을 번들형태로 만들어 반환
+        """
+        pass
+    def save(self, path:str, name:str,):
+        """클래스를 파일형태로 저장.
+
+        Parameters
+        ----------
+        path : str
+            [description]
+        name : str
+            [description]
         """
         pass
 class PastFutureDataMaker(DataMaker):
@@ -28,6 +39,8 @@ class PastFutureDataMaker(DataMaker):
         self.past_length = past_length
         self.future_length = future_length
         self.total_length = past_length + future_length
+
+        self.dataset = self.make_bundle()
 
     def past_future_simple(self, dataframe):
         """dataframe을 과거와 미래로 각각의 length만큼으로 이등분하는 방식
@@ -80,3 +93,12 @@ class PastFutureDataMaker(DataMaker):
 
         return DataSet(result_x, result_y)
 
+    def save(self, path:str, name:str):
+        import pickle
+        import os
+
+        path = os.path.join(path, f'{name}.bin')
+
+        print('PastFuture Dataset is saved ', path)
+        with open(path, 'wb') as f:
+            pickle.dump(self.dataset, f, pickle.HIGHEST_PROTOCOL)

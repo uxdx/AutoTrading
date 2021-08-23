@@ -17,10 +17,10 @@ from utils.datasetloader import DataSetLoader
 
 class PastFuture(Dataset):
     def __init__(
-            self, 
+            self,
             symbol: str = 'BTCUSDT',
-            interval: str = '1d', 
-            start: str = '2018-01-01 00:00:00', 
+            interval: str = '1d',
+            start: str = '2018-01-01 00:00:00',
             end: str = '2021-01-01 00:00:00',
             transform: Optional[Callable] = None,
     ) -> None:
@@ -33,18 +33,13 @@ class PastFuture(Dataset):
         self.data, self.targets = self._load_data()
 
     def _load_data(self):
-        chart_file = f"[파일명]"
-        data = read_chart_file(os.path.join(self.raw_folder, chart_file))
-
-        label_file = f"[파일명]"
-        targets = read_label_file(os.path.join(self.raw_folder, label_file))
+        data, targets = DataSetLoader.load()
 
         return data, targets
 
-        
 
     def __len__(self):
-        return len(self.img_labels)
+        return len(self.targets)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
@@ -58,16 +53,3 @@ class PastFuture(Dataset):
         if self.transform is not None:
             chart = self.transform(chart)
         return chart, target
-
-def read_label_file(path: str) -> torch.Tensor:
-    x = read_sn3_pascalvincent_tensor(path, strict=False)
-    assert(x.dtype == torch.uint8)
-    assert(x.ndimension() == 1)
-    return x.long()
-
-
-def read_chart_file(path: str) -> torch.Tensor:
-    x = read_sn3_pascalvincent_tensor(path, strict=False)
-    assert(x.dtype == torch.uint8)
-    assert(x.ndimension() == 3)
-    return x

@@ -70,9 +70,6 @@ def get_market_data(start_time, end_time, symbol, interval):
 
     # ? make dataframe
     index = time_index(start_time, end_time, interval)
-    print(num)
-    print(data.shape)
-    print(index.shape)
     
     dataframe = pd.DataFrame(data, columns=[
         'open', 'high', 'low', 'close', 'volume'],index=index[:-1])
