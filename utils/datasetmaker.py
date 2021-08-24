@@ -1,7 +1,7 @@
 """
 Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
-from utils.marketdata import get_market_data
+# from utils.marketdata import get_market_data
 from utils.share import default_data_path, make_file_name
 import numpy as np
 import pandas as pd

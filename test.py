@@ -4,8 +4,9 @@ import time
 import numpy as np
 import pandas as pd
 from requests.api import options
-from utils.marketdata import get_market_data
+# from utils.marketdata import get_market_data
 from utils.datasetmaker import Controller, PastFuture
+from utils.marketdata import MarketData
 from datasets import PastFutureDataset
 from typing import List
 class TestClass:
@@ -21,14 +22,14 @@ class TestGetData(TestClass):
     def test(self):
         print('Test "get_market_data" method. ')
 
-        start_time = '2021-07-14 00:00:00'
+        start_time = '2021-01-14 00:00:00'
         end_time = '2021-07-16 00:00:00'
-        dataframe = get_market_data(
-            start_time=start_time, end_time=end_time, symbol='BTCUSDT', interval='30m')
+        market_dataframe = MarketData(start_time,end_time,'BTCUSDT','1h').market_dataframe
+        print(market_dataframe.shape)
         # pd.set_option('display.max_rows', None)
         # print(dataframe)
         # print(type(dataframe))
-        assert dataframe.shape == np.zeros((96, 5)).shape
+        # assert dataframe.shape == np.zeros((96, 5)).shape
         # print(dataframe)
         print('Finished test "get_market_data" method. ',
               time.time() - self.test_start_time, 'sec')
@@ -64,4 +65,5 @@ class Tester:
             test.test()
 
 if __name__ == '__main__':
-    Tester().execute()
+    # Tester().execute()
+    TestGetData().test()
