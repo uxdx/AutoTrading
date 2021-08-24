@@ -7,6 +7,7 @@ from requests.api import options
 from utils.marketdata import get_market_data
 from utils.datasetmaker import Controller, PastFuture
 from datasets import PastFutureDataset
+from typing import List
 class TestClass:
     """
     모든 테스트 클래스는 이 클래스를 상속함.
@@ -17,11 +18,7 @@ class TestClass:
         self.test_start_time = time.time()
 
 class TestGetData(TestClass):
-    """Test Class to test getdata.py module
-    """
-    def test_get_market_data(self):
-        """
-        """
+    def test(self):
         print('Test "get_market_data" method. ')
 
         start_time = '2021-07-14 00:00:00'
@@ -36,29 +33,35 @@ class TestGetData(TestClass):
         print('Finished test "get_market_data" method. ',
               time.time() - self.test_start_time, 'sec')
 
-class TestDatasetmaker(TestClass):
+class TestMakeDataset(TestClass):
     def test(self):
-        start_time = '2021-07-14 00:00:00'
-        end_time = '2021-08-16 00:00:00'
-        # print(sample.SAMPLE_DATAFRAME)
-        dataset = PastFutureDataset(start_time=start_time,end_time=end_time,symbol='BTCUSDT',interval='1h',past_length=10,future_length=5)
-        print(dataset)
-
-class TestDatasetloader(TestClass):
+        print('Test "datasetmaker" module. ')
+        start = '2021-07-14 00:00:00'
+        end = '2021-08-16 00:00:00'
+        options = {'start_time':start, 'end_time':end, 'symbol':'BTCUSDT', 'interval':'1h', 'past_length':10,'future_length':5}
+        controller = Controller()
+        controller.construct_dataset(builder=PastFuture, **options)
+        print('Finished test "datasetmaker" module. ',
+              time.time() - self.test_start_time, 'sec')
+class TestLoadDataset(TestClass):
     def test(self):
+        print('Test "data loading" action. ')
         start_time = '2021-07-14 00:00:00'
         end_time = '2021-08-16 00:00:00'
         # print(sample.SAMPLE_DATAFRAME)
         dataset = PastFutureDataset(start=start_time,end=end_time,symbol='BTCUSDT',interval='1h',past_length=10,future_length=5)
         print(dataset)
+        print('Finished test "data loading" action. ',
+              time.time() - self.test_start_time, 'sec')
 
+class Tester:
+    def __init__(self) -> None:
+        self.test_list = List[TestClass]
+
+    def execute(self):
+        self.test_list = [TestGetData(),TestMakeDataset(), TestLoadDataset()]
+        for test in self.test_list:
+            test.test()
 
 if __name__ == '__main__':
-    # TestGetData().test_get_market_data()
-    # TestDatasetmaker().test()
-    TestDatasetloader().test()
-    # start = '2021-07-14 00:00:00'
-    # end = '2021-08-16 00:00:00'
-    # options = {'start_time':start, 'end_time':end, 'symbol':'BTCUSDT', 'interval':'1h', 'past_length':10,'future_length':5}
-    # controller = Controller()
-    # controller.construct_dataset(builder=PastFuture, **options)
+    Tester().execute()

@@ -31,9 +31,9 @@ class CustomDataset(Dataset):
 class PastFutureDataset(CustomDataset):
     def __init__(
             self,
+            transform = None,
             normalization:bool = False,
             flatten:bool = False,
-            transform:function = None,
             **settings,
     ) -> None:
         super().__init__()
