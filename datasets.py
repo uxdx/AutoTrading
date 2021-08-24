@@ -53,12 +53,12 @@ class PastFuture(CustomDataset):
     def _load_dataset(self):
         """Loads dataset from file
         """
-        dataset =  self._file_load()
+        dataset =  self._load_as_file()
         return dataset.x, dataset.y
 
-    def _file_load(self):
+    def _load_as_file(self):
         import pickle
-        tags = self.get_tags()
+        tags = self._get_tags()
         name = self.file_naming(tags, self.start, self.end, self.interval)
         path = ''.join([self.default_path, name,'.bin'])
         try:
@@ -71,7 +71,16 @@ class PastFuture(CustomDataset):
             import sys
             sys.exit(0)
 
-    def get_tags(self):
+    def _save_as_file(self):
+        import pickle
+        tags = self._get_tags()
+        name = self.file_naming(tags, self.start, self.end, self.interval)
+        path = ''.join([self.default_path, name,'.bin'])
+        with open(path, 'wb') as f:
+            pickle.dump(self,f)
+
+
+    def _get_tags(self):
         return ''.join(str(s) for s in [self.past_length, ':', self.future_length])
 
     def __len__(self):
@@ -89,4 +98,3 @@ class PastFuture(CustomDataset):
         if self.transform is not None:
             chart = self.transform(chart)
         return chart, target
-
