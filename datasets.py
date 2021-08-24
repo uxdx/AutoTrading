@@ -9,11 +9,11 @@ from THIS import datasets
 binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
     start='2018-01-01 00:00:00', end='2021-01-01 00:00:00')
 """
-import os
-import torch
+import pickle
 from typing import Any, Callable, List, Optional, Union, Tuple
+from torch._C import NoneType
 from torch.utils.data import Dataset
-from utils.dataset import DataSet
+from utils.share import *
 
 class CustomDataset(Dataset):
     def __init__(self) -> None:
@@ -22,45 +22,42 @@ class CustomDataset(Dataset):
 
     def __str__(self) :
         return '(x.shape: {}, y.shape: {})'.format(self.data.shape, self.targets.shape)
-
+    
     def _load_dataset(self) -> None:
         pass
     def file_naming(self, tags:str,start:str,end:str,interval:str):
         return ''.join([self.__class__.__name__,tags,'_',start,'_',end,'_',interval])
 
-class PastFuture(CustomDataset):
+class PastFutureDataset(CustomDataset):
     def __init__(
             self,
-            symbol: str = 'BTCUSDT',
-            interval: str = '1d',
-            start: str = '2018-01-01 00:00:00',
-            end: str = '2021-01-01 00:00:00',
-            past_length : int = 9,
-            future_length : int = 3,
-            transform: Optional[Callable] = None,
+            normalization:bool = False,
+            flatten:bool = False,
+            transform:function = None,
+            **settings,
     ) -> None:
         super().__init__()
-        self.symbol = symbol
-        self.interval = interval
-        self.start = start
-        self.end = end
-        self.past_length = past_length
-        self.future_length = future_length
-        self.transform = transform
+        self.symbol = settings['symbol']
+        self.interval = settings['interval']
+        self.start = settings['start']
+        self.end = settings['end']
+        self.past_length = settings['past_length']
+        self.future_length = settings['future_length']
 
-        self.data, self.targets = self._load_dataset()
+        self.data, self.targets = self._load_as_file()
 
-    def _load_dataset(self):
-        """Loads dataset from file
-        """
-        dataset =  self._load_as_file()
-        return dataset.x, dataset.y
+        if normalization:
+            pass
+        if flatten:
+            pass
 
     def _load_as_file(self):
-        import pickle
+        return self._load_data(), self._load_targets()
+
+    def _load_data(self):
         tags = self._get_tags()
-        name = self.file_naming(tags, self.start, self.end, self.interval)
-        path = ''.join([self.default_path, name,'.bin'])
+        name = make_file_name(True,'PastFuture',tags,self.start,self.end,self.interval)
+        path = ''.join([default_data_path(), name,'.bin'])
         try:
             with open(path, 'rb') as f:
                 data = pickle.load(f)
@@ -70,15 +67,19 @@ class PastFuture(CustomDataset):
             print(path, ' 파일을 찾을 수 없습니다. 정확한 경로와 이름을 지정해주세요.')
             import sys
             sys.exit(0)
-
-    def _save_as_file(self):
-        import pickle
+    def _load_targets(self):
         tags = self._get_tags()
-        name = self.file_naming(tags, self.start, self.end, self.interval)
-        path = ''.join([self.default_path, name,'.bin'])
-        with open(path, 'wb') as f:
-            pickle.dump(self,f)
+        name = make_file_name(False,'PastFuture',tags,self.start,self.end,self.interval)
+        path = ''.join([default_data_path(), name,'.bin'])
+        try:
+            with open(path, 'rb') as f:
+                targets = pickle.load(f)
 
+            return targets
+        except FileNotFoundError:
+            print(path, ' 파일을 찾을 수 없습니다. 정확한 경로와 이름을 지정해주세요.')
+            import sys
+            sys.exit(0)
 
     def _get_tags(self):
         return ''.join(str(s) for s in [self.past_length, ':', self.future_length])

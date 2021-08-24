@@ -3,10 +3,10 @@
 import time
 import numpy as np
 import pandas as pd
-import sample
+from requests.api import options
 from utils.marketdata import get_market_data
-import datasets
-
+from utils.datasetmaker import Controller, PastFuture
+from datasets import PastFutureDataset
 class TestClass:
     """
     모든 테스트 클래스는 이 클래스를 상속함.
@@ -38,26 +38,27 @@ class TestGetData(TestClass):
 
 class TestDatasetmaker(TestClass):
     def test(self):
-        from utils.datasetmaker import make_dataset, past_future
         start_time = '2021-07-14 00:00:00'
         end_time = '2021-08-16 00:00:00'
         # print(sample.SAMPLE_DATAFRAME)
-        maker = make_dataset(past_future,start_time,end_time,'BTCUSDT','1h', 10, 5)
+        dataset = PastFutureDataset(start_time=start_time,end_time=end_time,symbol='BTCUSDT',interval='1h',past_length=10,future_length=5)
+        print(dataset)
 
 class TestDatasetloader(TestClass):
     def test(self):
-        from utils.dataset import DataSet
-        dataset = DataSet.load(path='./assets/',name='past_future10:5_2021-07-14 00:00:00_2021-08-16 00:00:00_1h')
-
+        start_time = '2021-07-14 00:00:00'
+        end_time = '2021-08-16 00:00:00'
+        # print(sample.SAMPLE_DATAFRAME)
+        dataset = PastFutureDataset(start=start_time,end=end_time,symbol='BTCUSDT',interval='1h',past_length=10,future_length=5)
         print(dataset)
 
 
 if __name__ == '__main__':
     # TestGetData().test_get_market_data()
     # TestDatasetmaker().test()
-    # TestDatasetloader().test()
-    start = '2021-07-14 00:00:00'
-    end = '2021-08-16 00:00:00'
-
-    dataset = datasets.PastFuture(start=start, end=end, past_length=10, future_length=5, interval='1h')
-    print(dataset)
+    TestDatasetloader().test()
+    # start = '2021-07-14 00:00:00'
+    # end = '2021-08-16 00:00:00'
+    # options = {'start_time':start, 'end_time':end, 'symbol':'BTCUSDT', 'interval':'1h', 'past_length':10,'future_length':5}
+    # controller = Controller()
+    # controller.construct_dataset(builder=PastFuture, **options)
