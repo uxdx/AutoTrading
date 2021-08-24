@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import sample
 from utils.marketdata import get_market_data
+import datasets
 
 class TestClass:
     """
@@ -54,4 +55,9 @@ class TestDatasetloader(TestClass):
 if __name__ == '__main__':
     # TestGetData().test_get_market_data()
     # TestDatasetmaker().test()
-    TestDatasetloader().test()
+    # TestDatasetloader().test()
+    start = '2021-07-14 00:00:00'
+    end = '2021-08-16 00:00:00'
+
+    dataset = datasets.PastFuture(start=start, end=end, past_length=10, future_length=5, interval='1h')
+    print(dataset)
