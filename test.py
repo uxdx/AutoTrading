@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 from requests.api import options
-from utils.datasetmaker import Controller, PastFuture
+from utils.datasetmaker import Controller, PastFuture, SlicingPF
 from utils.marketdata import MarketDataProvider
 from datasets import PastFutureDataset
 from typing import List
@@ -37,14 +37,15 @@ def dataset_maker_tester():
     controller = Controller()
     options = {
         'market':'Binance',
-        'start_time' : '2021-01-14 00:00:00',
+        'start_time' : '2021-07-14 00:00:00',
         'end_time' : '2021-07-16 00:00:00',
         'symbol' : 'BTCUSDT',
         'interval' : '1h',
         'past_length' : 10,
         'future_length' : 5,
+        'stride' : 1,
     }
-    controller.construct_dataset(PastFuture, **options)
+    controller.construct_dataset(SlicingPF, **options)
 
 @Tester
 def dataset_loader_tester():
@@ -57,5 +58,5 @@ def dataset_loader_tester():
 if __name__ == '__main__':
     # Tester().execute()
     # get_data_tester()
-    # dataset_maker_tester()
-    dataset_loader_tester()
+    dataset_maker_tester()
+    # dataset_loader_tester()

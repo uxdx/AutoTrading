@@ -1,5 +1,6 @@
 """마켓(binance)에서 데이터를 얻어오는 함수를 구현.
 """
+from numpy import longlong
 import pandas as pd
 from utils.share import datetime_to_unixtime, to_thousands
 
@@ -16,9 +17,9 @@ class MarketDataProvider:
         self.market = market
 
     def request_data(self) -> pd.DataFrame:
-        if self.market is 'Binance':
+        if self.market == 'Binance':
             return Binance().get_data(self.start_time, self.end_time)
-        elif self.market is 'ByBit':
+        elif self.market == 'ByBit':
             # return ByBit().get_data(self.start_time, self.end_time)
             pass
         #...
@@ -58,6 +59,6 @@ class Binance(Market):
             import sys
             sys.exit(0)
     def _astype_unixcolumn_to_int(self) -> None: #2
-        self.dataframe = self.dataframe.astype({'unix':int}) # float to int (소수점 없애고 정수화)
+        self.dataframe = self.dataframe.astype({'unix':longlong}) # float to int (소수점 없애고 정수화)
     def _set_index_as_unix(self) -> None: #3
         self.dataframe = self.dataframe.set_index('unix')
