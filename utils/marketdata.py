@@ -5,7 +5,33 @@ import numpy as np
 import pandas as pd
 from utils.share import datetime_to_unixtime, enum_to_unixtime, to_thousands
 
-class Binance:
+class MarketDataProvider:
+    """
+    Usage
+    -----
+    1) provider = MarketDataProvider('2021-01-01 00:00:00', '2021-05-01 00:00:00','Binance')
+    2) market_data = provider.request_data()
+    """
+    def __init__(self, start_time:str, end_time:str, market:str='Binance') -> None:
+        self.start_time = start_time
+        self.end_time = end_time
+        self.market = market
+
+    def request_data(self) -> pd.DataFrame:
+        if self.market is 'Binance':
+            return Binance().get_data(self.start_time, self.end_time)
+        elif self.market is 'ByBit':
+            # return ByBit().get_data(self.start_time, self.end_time)
+            pass
+        #...
+
+class Market:
+    def __init__(self) -> None:
+        pass
+    def get_data(start_str:str,end_str:str) -> pd.DataFrame:
+        pass
+
+class Binance(Market):
     def __init__(self, symbol:str='BTCUSDT', interval:str='1h') -> None:
         self.symbol = symbol
         self.interval = interval

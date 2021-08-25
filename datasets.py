@@ -21,24 +21,46 @@ class PastFutureDataset(Dataset):
             interval: str = '1d',
             start: str = '2018-01-01 00:00:00',
             end: str = '2021-01-01 00:00:00',
+            past_length: int = 10,
+            future_length: int = 5,
             transform: Optional[Callable] = None,
     ) -> None:
         self.symbol = symbol
         self.interval = interval
         self.start = start
         self.end = end
+        self.past_length = past_length
+        self.future_length = future_length
         self.transform = transform
 
         self.data, self.targets = self._load_data()
 
     def _load_data(self):
-        dataset = DataSet.load()
-        data = dataset.x
-        targets = dataset.y
-
+        import pickle
+        try:
+            with open(self._get_data_path(isData=True), 'rb') as f:
+                data = pickle.load(f)
+            with open(self._get_data_path(isData=False), 'rb') as f:
+                targets = pickle.load(f)
+        except FileNotFoundError:
+            print('File not Found. ', self._get_data_path)
         return data, targets
 
-
+    def _get_data_path(self, isData:bool):
+        return ''.join([
+            './assets/',
+            'Data_'if isData else 'Targets_',
+            'PastFuture',
+            self._get_tags(),
+            '_',
+            self.start,
+            '~',
+            self.end,
+            '_',
+            self.interval,
+            '.bin'])
+    def _get_tags(self):
+        return ''.join([str(self.past_length),':',str(self.future_length)])
     def __len__(self):
         return len(self.targets)
 

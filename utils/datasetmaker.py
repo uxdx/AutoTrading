@@ -1,12 +1,19 @@
 """
 Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
-# from utils.marketdata import get_market_data
+from utils.marketdata import MarketDataProvider
 from utils.share import default_data_path, make_file_name
 import numpy as np
 import pandas as pd
 
 class Controller:
+    """
+    Usage
+    -----
+    1) controller = Controller()
+    2) options = {'market': 'Binance, ... ,}
+    3) controller.construct_dataset(PastFuture, **options)
+    """
     def __init__(self):
         self.builder = None
 
@@ -20,6 +27,18 @@ class Controller:
 
 class PastFuture:
     def __init__(self, options:dict) -> None:
+        """
+        Options
+        -------
+        'market' : str = 'Binance'
+        'start_time' :
+        'end_time' :
+        'symbol' :
+        'interval' :
+        'past_length' :
+        'future_length' :
+        """
+        self.market = options['market']
         self.start_time = options['start_time']
         self.end_time = options['end_time']
         self.symbol = options['symbol']
@@ -34,7 +53,8 @@ class PastFuture:
         self.targets = []
 
     def get_market_data(self):
-        self.market_data = get_market_data(self.start_time, self.end_time, self.symbol, self.interval)
+        provider = MarketDataProvider(self.start_time,self.end_time,self.market)
+        self.market_data = provider.request_data()
     def partition_market_data(self):
         dataframe = self.market_data
         # save divided dataframe in self.market_data_pieces
@@ -68,4 +88,3 @@ class PastFuture:
             pickle.dump(np.array(self.targets), f, pickle.HIGHEST_PROTOCOL)
     def _total_length(self):
         return self.past_length + self.future_length
-        return ''.join([func_name,tags,'_',start,'_',end,'_',interval])
