@@ -1,9 +1,7 @@
 """마켓(binance)에서 데이터를 얻어오는 함수를 구현.
 """
-from pandas.core.frame import DataFrame
-import numpy as np
 import pandas as pd
-from utils.share import datetime_to_unixtime, enum_to_unixtime, to_thousands
+from utils.share import datetime_to_unixtime, to_thousands
 
 class MarketDataProvider:
     """

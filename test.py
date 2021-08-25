@@ -4,9 +4,8 @@ import time
 import numpy as np
 import pandas as pd
 from requests.api import options
-# from utils.marketdata import get_market_data
 from utils.datasetmaker import Controller, PastFuture
-from utils.marketdata import Binance
+from utils.marketdata import MarketDataProvider
 from datasets import PastFutureDataset
 from typing import List
 
@@ -29,8 +28,8 @@ class Tester:
 def get_data_tester():
     start_time = '2021-01-14 00:00:00'
     end_time = '2021-07-16 00:00:00'
-    binance = Binance()
-    dataframe = binance.get_data(start_time,end_time)
+    provider = MarketDataProvider(start_time,end_time,'Binance')
+    dataframe = provider.request_data()
     print(dataframe)
 
 @Tester

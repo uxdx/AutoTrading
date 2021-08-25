@@ -10,18 +10,3 @@ def datetime_to_unixtime(date_time:str) -> int:
 
 def to_thousands(num):
     return num * 1000
-
-def enum_to_unixtime(interval:str) -> int:
-    result = 0
-    if interval.__contains__('d') | interval.__contains__('D'):
-        result = 86400 * int(interval.replace('d', ' ').replace('D', ' '))
-
-    elif interval.__contains__('h') | interval.__contains__('H'):
-        result = 3600 * int(interval.replace('h', ' ').replace('H', ' '))
-
-    elif interval.__contains__('m') | interval.__contains__('M'):
-        result = 60 * int(interval.replace('m', ' ').replace('M', ' '))
-
-    elif interval.__contains__('s') | interval.__contains__('S'):
-        result = 1 * int(interval.replace('s', ' ').replace('S', ' '))
-    return result
