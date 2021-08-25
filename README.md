@@ -1,4 +1,4 @@
-# Get Data From Binance
+# Cryptocurrency into Neural network.
 
 This package can't use for practice yet. 
 
