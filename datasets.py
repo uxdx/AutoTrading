@@ -14,6 +14,15 @@ import torch
 from typing import Any, Callable, List, Optional, Union, Tuple
 from torch.utils.data import Dataset
 
+class DatasetFactory:
+    def __init__(self, what) -> None:
+        self.selector = what
+    def get_dataset(self):
+        dataset = None
+        if self.selector == 'test':
+            dataset = None
+        return dataset
+
 class PastFutureDataset(Dataset):
     def __init__(
             self,
@@ -32,8 +41,12 @@ class PastFutureDataset(Dataset):
         self.past_length = past_length
         self.future_length = future_length
         self.transform = transform
+        self._arguments_checker()
 
         self.data, self.targets = self._load_data()
+    
+    def _arguments_checker(self):
+        pass
 
     def _load_data(self):
         import pickle
