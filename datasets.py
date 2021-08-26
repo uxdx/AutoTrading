@@ -10,6 +10,7 @@ binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
     start='2018-01-01 00:00:00', end='2021-01-01 00:00:00')
 """
 import os
+from utils.marketdata import MarketDataProvider
 import torch
 from typing import Any, Callable, List, Optional, Union, Tuple
 from torch.utils.data import Dataset
@@ -89,3 +90,26 @@ class PastFutureDataset(Dataset):
         if self.transform is not None:
             chart = self.transform(chart)
         return chart, target
+
+class CustomDataset(Dataset):
+    """
+    BTCUSDT 1시간봉 모든 시간으로 만든 데이터셋
+    slicing 방식
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.pa_len = 10 # 과거 시계열 길이
+        self.fu_len = 5 # 미래 시계열 길이
+        self.stride = 1
+
+        self.load_dataset()
+
+    def load_dataset(self):
+        self._load_marketdata()
+    def _load_marketdata(self):
+        provider = MarketDataProvider()
+
+    def __len__(self):
+        return len(self.targets)
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        return super().__getitem__(index)

@@ -11,7 +11,7 @@ class MarketDataProvider:
     1) provider = MarketDataProvider('2021-01-01 00:00:00', '2021-05-01 00:00:00','Binance')
     2) market_data = provider.request_data()
     """
-    def __init__(self, start_time:str, end_time:str, market:str='Binance') -> None:
+    def __init__(self, start_time:str='2017-08-17 04:00:00', end_time:str='2021-08-25 00:00:00', market:str='Binance') -> None:
         self.start_time = start_time
         self.end_time = end_time
         self.market = market
@@ -53,7 +53,7 @@ class Binance(Market):
         assert self.dataframe is not None
     def _read_csv_file(self) -> None: #1
         try:
-            self.dataframe = pd.read_csv('./assets/Binance_{}_{}.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume BTC'])
+            self.dataframe = pd.read_csv('./assets/Binance_{}_{}.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume USDT'])
         except FileNotFoundError:
             print("File not found.", './assets/Binance_{}_{}.csv'.format(self.symbol, self.interval))
             import sys
