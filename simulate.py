@@ -28,7 +28,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from datasets import PastFutureDataset
+from datasets import CustomDataset
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device
@@ -54,22 +54,22 @@ class Simulator:
 
     def simulate(self):
         self.data_setting()
-        self.parameters_setting()
-        self.functions_setting()
-        self.learning()
-        self.predict()
+        # self.parameters_setting()
+        # self.functions_setting()
+        # self.learning()
+        # self.predict()
 
     def data_setting(self):
-        from utils.marketdata import MarketDataProvider
-        self.X = None
-        self.y = None
+        dataset = CustomDataset(make_new=False)
+        X = dataset.data
+        y = dataset.targets
 
         # Train Data
-        X_train = None
-        X_test = None
+        X_train = X[:33000]
+        X_test = X[33000:]
 
-        y_train = None
-        y_test = None
+        y_train = y[:33000]
+        y_test = y[33000:]
         print("Training Shape", X_train.shape, y_train.shape)
         print("Testing Shape", X_test.shape, y_test.shape)
 

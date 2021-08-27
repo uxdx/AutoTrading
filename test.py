@@ -6,7 +6,8 @@ import pandas as pd
 from requests.api import options
 from utils.datasetmaker import Controller, PastFuture
 from utils.marketdata import MarketDataProvider
-from datasets import CustomDataset, PastFutureDataset
+from datasets import CustomDataset
+
 from typing import List
 
 # Decorator
@@ -52,14 +53,23 @@ def dataset_maker_tester():
     }
     controller.construct_dataset(PastFuture, **options)
 
-@Tester
-def dataset_loader_tester():
-    dataset = PastFutureDataset(symbol='BTCUSDT', interval='1h', start='2021-01-14 00:00:00', end='2021-07-16 00:00:00', past_length=10, future_length=5)
-    data = dataset.data
-    targets = dataset.targets
-    print(data.shape)
-    print(targets.shape)
+
 
 if __name__ == '__main__':
     # get_data_tester()
-    print(len(CustomDataset().data))
+    dataset = CustomDataset(make_new=False) # 데이터셋을 새로만들지 않고 불러옴.
+    data = dataset.data.astype('int64')
+    print(dataset.data[:,:,0].shape)
+    print(dataset.targets)
+    import matplotlib.pyplot as plt
+    plt.plot(dataset.targets * 10000, label='targets') #actual plot
+    # plt.plot(dataset.data[:,0,0], label='data') #actual plot
+    plt.legend()
+    plt.show()
+    # X = np.empty([0,10,5])
+    # new_x = np.empty([1,10,5])
+    # print(new_x)
+    # X = np.append(X, new_x, axis=0)
+    # X = np.append(X, new_x, axis=0)
+    # X = np.append(X, new_x, axis=0)
+    # print(X.shape)
