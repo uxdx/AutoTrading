@@ -10,3 +10,12 @@ def datetime_to_unixtime(date_time:str) -> int:
 
 def to_thousands(num):
     return num * 1000
+
+def none_init(dict, key):
+    """딕셔너리와 그 키값을 인수로 받아,
+    해당하는 딕셔너리에 해당하는 키값이나 키 자체가 없다면 None을 반환함.
+    """
+    try:
+        return None if dict[key] is None else dict[key]
+    except KeyError:
+        return None

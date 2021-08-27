@@ -11,6 +11,7 @@ binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
 """
 import os
 from utils.marketdata import MarketDataProvider
+import pandas as pd
 import torch
 from typing import Any, Callable, List, Optional, Union, Tuple
 from torch.utils.data import Dataset
@@ -102,13 +103,41 @@ class CustomDataset(Dataset):
         self.fu_len = 5 # 미래 시계열 길이
         self.stride = 1
 
+        self.data:list[pd.DataFrame] = None
+        self.targets:list[str] = None
         self.load_dataset()
+        assert self.data is not None
+        assert self.targets is not None
 
-    def load_dataset(self):
-        self._load_marketdata()
+    def load_dataset(self, make_new:bool=True):
+        if make_new:
+            self._make_dataset(self._load_marketdata())
+        else:
+            pass
     def _load_marketdata(self):
-        provider = MarketDataProvider()
-
+        return MarketDataProvider().request_data()
+    def _make_dataset(self, market_df:pd.DataFrame):
+        X, y = [], []
+        idx = 0
+        index_max = len(market_df) - (self.pa_len+self.fu_len -1)
+        while idx < index_max:
+            new_x, new_y = self._slicing(market_df, idx, self.pa_len, self.fu_len)
+            X.append(new_x)
+            y.append(self._get_target(new_y))
+            idx += 1
+            if idx % 1000 == 0:
+                percentage = idx/index_max*100
+                print('Making dataset ... ', idx, '/', index_max, '  ', f'{percentage:.2f}', '%')
+        self.data, self.targets = X, y
+    def _get_target(self, y_frame:pd.DataFrame):
+        if y_frame['open'].iloc[0] < y_frame['close'].iloc[-1]:
+            return 'up'
+        elif y_frame['open'].iloc[0] > y_frame['close'].iloc[-1]:
+            return 'down'
+        else:
+            return 'same'
+    def _slicing(self, dataframe:pd.DataFrame, idx:int, x_len:int, y_len:int):
+        return dataframe.iloc[idx:idx+x_len, :], dataframe.iloc[idx+x_len:idx+x_len+y_len, :]
     def __len__(self):
         return len(self.targets)
     def __getitem__(self, index: int) -> Tuple[Any, Any]:

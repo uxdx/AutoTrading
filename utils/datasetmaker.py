@@ -38,11 +38,12 @@ class SlicingPF:
         'past_length' :
         'future_length' :
         """
-        self.market = options['market']
-        self.start_time = options['start_time']
-        self.end_time = options['end_time']
-        self.symbol = options['symbol']
-        self.interval = options['interval']     
+        from utils.share import none_init
+        self.market = none_init(options, 'market')
+        self.start_time = none_init(options, 'start_time')
+        self.end_time = none_init(options, 'end_time')
+        self.symbol = none_init(options, 'symbol')
+        self.interval = none_init(options, 'interval')
 
         self.stride = options['stride']
         self.past_length = options['past_length']
@@ -53,16 +54,17 @@ class SlicingPF:
         self.targets = []
     def get_market_data(self):
         provider = MarketDataProvider(self.start_time,self.end_time,self.market)
-        self.market_data = provider.request_data()[::-1] #reverse
-    def make_dataset(self):
-        print(self.market_data)
-        temp = 0
-        while temp * self.stride + self._total_length() <= len(self.market_data):
-            print(temp)
-            self._data_append(temp)
-            self._targets_append(temp)
-            temp += 1
-        pass
+        self.market_data = provider.request_data() #reverse
+
+    def make_dataset(self, x_len, y_len):
+        X, y = [], []
+        idx = 0
+        while idx < len(self.market_data)-(x_len+y_len -1):
+            new_x, new_y = self._slicing(self.market_data, idx, x_len, y_len)
+            X.append(new_x)
+            y.append(self._get_target(new_y))
+            idx += 1
+        self.data, self.targets = X, y
     def save_result(self):
         import pickle
         tags = ''.join(str(s) for s in [self.past_length,':',self.future_length])
@@ -79,25 +81,15 @@ class SlicingPF:
         with open(path, 'wb') as f:
             pickle.dump(np.array(self.targets), f, pickle.HIGHEST_PROTOCOL)
 #=======Sub Methods==============================
-    def _data_append(self, temp:int):
-        self.data.append(np.array(self.market_data.iloc[self._first_index_of_piece(temp):self._first_index_of_piece(temp)+self.past_length]))
-    def _targets_append(self, temp:int):
-        future_first = self.market_data.iloc[self._first_index_of_piece(temp) + self.past_length]['open']
-        future_last = self.market_data.iloc[self._last_index_of_piece(temp)]['close']
-        print(future_first, ", ", future_last)
-        if future_first < future_last:
-            y = 'up'
-        elif future_first > future_last:
-            y = 'down'
+    def _get_target(y_frame:pd.DataFrame):
+        if y_frame['open'].iloc[0] < y_frame['close'].iloc[-1]:
+            return 'up'
+        elif y_frame['open'].iloc[0] > y_frame['close'].iloc[-1]:
+            return 'down'
         else:
-            y = 'same'
-        self.targets.append(y)
-    def _total_length(self) -> int:
-        return self.past_length + self.future_length
-    def _first_index_of_piece(self, temp: int) -> int:
-        return temp * self.stride
-    def _last_index_of_piece(self,temp) -> int:
-        return self._first_index_of_piece(temp) + self._total_length() -1 
+            return 'same'
+    def _slicing(dataframe:pd.DataFrame, idx:int, x_len:int, y_len:int):
+        return dataframe.iloc[idx:idx+x_len, :], dataframe.iloc[idx+x_len:idx+x_len+y_len, :]
 class PastFuture:
     def __init__(self, options:dict) -> None:
         """

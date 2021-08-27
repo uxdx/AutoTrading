@@ -11,7 +11,7 @@ class MarketDataProvider:
     1) provider = MarketDataProvider('2021-01-01 00:00:00', '2021-05-01 00:00:00','Binance')
     2) market_data = provider.request_data()
     """
-    def __init__(self, start_time:str='2017-08-17 04:00:00', end_time:str='2021-08-25 00:00:00', market:str='Binance') -> None:
+    def __init__(self, start_time:str=None, end_time:str=None, market:str='Binance') -> None:
         self.start_time = start_time
         self.end_time = end_time
         self.market = market
@@ -40,20 +40,23 @@ class Binance(Market):
     def get_data(self,start_str:str,end_str:str) -> pd.DataFrame:
         """Get Data from time index.
         """
-        start_unix = to_thousands(datetime_to_unixtime(start_str))
-        end_unix = to_thousands(datetime_to_unixtime(end_str))
+        if start_str is None and end_str is None:
+            return self.dataframe # All the data
+        start_unix = self.dataframe.index[0] if start_str is None else to_thousands(datetime_to_unixtime(start_str))
+        end_unix = self.dataframe.index[-1] if end_str is None else to_thousands(datetime_to_unixtime(end_str))
         return self._slice_data_from_index(start_unix, end_unix)
     def _slice_data_from_index(self, start_unix:int,end_unix:int) -> pd.DataFrame:
-        return self.dataframe.loc[end_unix:start_unix]
+        return self.dataframe.loc[start_unix:end_unix]
 
     def load_dataframe(self) -> None:
         self._read_csv_file() #1
         self._astype_unixcolumn_to_int() #2
         self._set_index_as_unix() #3
+        self._reverse() #4
         assert self.dataframe is not None
     def _read_csv_file(self) -> None: #1
         try:
-            self.dataframe = pd.read_csv('./assets/Binance_{}_{}.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume USDT'])
+            self.dataframe = pd.read_csv('./assets/Binance_{}_{}-re.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume USDT'])
         except FileNotFoundError:
             print("File not found.", './assets/Binance_{}_{}.csv'.format(self.symbol, self.interval))
             import sys
@@ -62,3 +65,5 @@ class Binance(Market):
         self.dataframe = self.dataframe.astype({'unix':longlong}) # float to int (소수점 없애고 정수화)
     def _set_index_as_unix(self) -> None: #3
         self.dataframe = self.dataframe.set_index('unix')
+    def _reverse(self) -> None: #4
+        self.dataframe = self.dataframe[::-1].copy()

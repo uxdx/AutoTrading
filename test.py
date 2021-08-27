@@ -6,7 +6,7 @@ import pandas as pd
 from requests.api import options
 from utils.datasetmaker import Controller, PastFuture
 from utils.marketdata import MarketDataProvider
-from datasets import PastFutureDataset
+from datasets import CustomDataset, PastFutureDataset
 from typing import List
 
 # Decorator
@@ -26,12 +26,18 @@ class Tester:
 
 @Tester
 def get_data_tester():
+    df1 = MarketDataProvider().request_data()
+    assert len(df1) == 37881
     start_time = '2021-01-14 00:00:00'
     end_time = '2021-07-16 00:00:00'
-    provider = MarketDataProvider(start_time,end_time,'Binance')
-    dataframe = provider.request_data()
-    print(dataframe)
-
+    df2 = MarketDataProvider(start_time,end_time,'Binance').request_data()
+    assert len(df2) == 4386
+    df3 = MarketDataProvider(start_time=start_time).request_data()
+    assert len(df3) == 5351
+    print(df3)
+    df4 = MarketDataProvider(end_time=end_time).request_data()
+    print(df4)
+    
 @Tester
 def dataset_maker_tester():
     controller = Controller()
@@ -55,7 +61,5 @@ def dataset_loader_tester():
     print(targets.shape)
 
 if __name__ == '__main__':
-    # Tester().execute()
     # get_data_tester()
-    # dataset_maker_tester()
-    dataset_loader_tester()
+    print(len(CustomDataset().data))
