@@ -12,7 +12,7 @@ binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
 import os
 
 from numpy import ndarray
-from utils.marketdata import MarketDataProvider
+from utils.marketdata import Market, MarketDataProvider
 import pandas as pd
 import numpy as np
 import torch
@@ -95,7 +95,7 @@ class CustomDataset(Dataset):
 
 
 
-class CustomDataset2(Dataset):
+class HaruDataset(Dataset):
     """여러채널(price,volume,기타 보조지표들 등)을 이용해서
     (N, C, lp) 형태의 data를 만들고,
         N: 데이터셋 크기
@@ -118,13 +118,61 @@ class CustomDataset2(Dataset):
         y = []
     
     """
-    def __init__(self) -> None:
+    def __init__(self, start_time:str=None, end_time:str=None, make_new:bool=False) -> None:
         super().__init__()
+        self.start_time = start_time
+        self.end_time = end_time
+        self.make_new = make_new
+        self.pa_len = 10
+        self.fu_len = 5
+
+        self.dataframes = []
+        self.data:ndarray = None
+        self.targets:ndarray = None
+
+        self._load_dataset()
+##############################################
+    def _load_dataset(self):
+        if self.make_new:
+            self._make_dataset()
+            self._save_as_file()
+        else:
+            self._load_as_file()
+#============================================#
+    def _make_dataset(self):
+        def load_data():
+            def load_price_data():
+                provider = MarketDataProvider(self.start_time, self.end_time)
+                self.dataframes.append(provider.request_data('price'))
+            def load_volume_data():
+                provider = MarketDataProvider(self.start_time, self.end_time)
+                self.dataframes.append(provider.request_data('volume'))
+
+            load_price_data()
+            load_volume_data()
+
+
+        def make_data():
+            pass
+
+        def make_targets():
+            pass
+
+
+        load_data()
+        make_data()
+        make_targets()
 
 
 
 
-
+    def _save_as_file(self):
+        pass
+#============================================#
+    def _load_as_file(self):
+        pass
+#============================================#
+##############################################
     def __len__(self):
         return len(self.targets)
     def __getitem__(self, index) -> Tuple[Any, Any]:
