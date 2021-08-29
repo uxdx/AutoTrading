@@ -57,19 +57,8 @@ def dataset_maker_tester():
 
 if __name__ == '__main__':
     # get_data_tester()
-    dataset = CustomDataset(make_new=False) # 데이터셋을 새로만들지 않고 불러옴.
-    data = dataset.data.astype('int64')
-    print(dataset.data[:,:,0].shape)
-    print(dataset.targets)
-    import matplotlib.pyplot as plt
-    plt.plot(dataset.targets * 10000, label='targets') #actual plot
-    # plt.plot(dataset.data[:,0,0], label='data') #actual plot
-    plt.legend()
-    plt.show()
-    # X = np.empty([0,10,5])
-    # new_x = np.empty([1,10,5])
-    # print(new_x)
-    # X = np.append(X, new_x, axis=0)
-    # X = np.append(X, new_x, axis=0)
-    # X = np.append(X, new_x, axis=0)
-    # print(X.shape)
+    start_time = '2021-01-14 00:00:00'
+    end_time = '2021-07-16 00:00:00'
+    provider = MarketDataProvider(start_time, end_time, 'Binance')
+    data = provider.request_data(label='volume')
+    print(data)
