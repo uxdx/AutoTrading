@@ -9,19 +9,20 @@ class MarketDataProvider:
     Usage
     -----
     1) provider = MarketDataProvider('2021-01-01 00:00:00', '2021-05-01 00:00:00','Binance')
-    2) market_data = provider.request_data()
+    2) market_data = provider.request_data('price') or provider.request_data('volume')
     """
-    def __init__(self, start_time:str=None, end_time:str=None, market:str='Binance') -> None:
+    def __init__(self, start_time:str=None, end_time:str=None, market_name:str='Binance') -> None:
         self.start_time = start_time
         self.end_time = end_time
-        self.market = market
+        self.market:Market = None
 
-    def request_data(self) -> pd.DataFrame:
-        if self.market == 'Binance':
-            return Binance().get_data(self.start_time, self.end_time)
-        elif self.market == 'ByBit':
-            # return ByBit().get_data(self.start_time, self.end_time)
+        if market_name == 'Binance':
+            self.market = Binance()
+        elif market_name == 'ByBit':
             pass
+
+    def request_data(self, label='price') -> pd.DataFrame:
+        return self.market.get_data(self.start_time, self.end_time, label)
         #...
 
 class Market:
@@ -37,17 +38,25 @@ class Binance(Market):
 
         self.dataframe = None
         self.load_dataframe()
-    def get_data(self,start_str:str,end_str:str) -> pd.DataFrame:
-        """Get Data from time index.
+    def get_data(self,start_str:str,end_str:str,label:str) -> pd.DataFrame:
+        """Get Data from index and label
         """
         if start_str is None and end_str is None:
             return self.dataframe # All the data
         start_unix = self.dataframe.index[0] if start_str is None else to_thousands(datetime_to_unixtime(start_str))
         end_unix = self.dataframe.index[-1] if end_str is None else to_thousands(datetime_to_unixtime(end_str))
-        return self._slice_data_from_index(start_unix, end_unix)
-    def _slice_data_from_index(self, start_unix:int,end_unix:int) -> pd.DataFrame:
-        return self.dataframe.loc[start_unix:end_unix]
-
+        data = self._slice_data_from_index(self.dataframe,start_unix, end_unix)
+        data = self._slice_data_from_label(data, label)
+        return data
+    def _slice_data_from_index(self, df:pd.DataFrame,start_unix:int,end_unix:int) -> pd.DataFrame:
+        return df.loc[start_unix:end_unix]
+    def _slice_data_from_label(self, df:pd.DataFrame, label:str):
+        if label == 'price':
+            return df[['open', 'high', 'low', 'close']]
+        elif label == 'volume':
+            return df['Volume USDT']
+        else:
+            raise NameError(label)
     def load_dataframe(self) -> None:
         self._read_csv_file() #1
         self._astype_unixcolumn_to_int() #2
