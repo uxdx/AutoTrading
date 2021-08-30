@@ -1,8 +1,8 @@
 """
 Data Set을 만드는 여러 방법들을 구현한 모듈.
 """
-from utils.marketdata import MarketDataProvider
-from utils.share import default_data_path, make_file_name
+from data.marketdata import MarketDataProvider
+from data.share import default_data_path, make_file_name
 import numpy as np
 import pandas as pd
 
@@ -38,7 +38,7 @@ class SlicingPF:
         'past_length' :
         'future_length' :
         """
-        from utils.share import none_init
+        from data.share import none_init
         self.market = none_init(options, 'market')
         self.start_time = none_init(options, 'start_time')
         self.end_time = none_init(options, 'end_time')
