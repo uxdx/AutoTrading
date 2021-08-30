@@ -120,7 +120,31 @@ class CustomDataset2(Dataset):
     """
     def __init__(self) -> None:
         super().__init__()
+        self.load_dataset()
 
+    def load_dataset(self):
+        def make_dataset():
+            """데이터로 데이터셋을 만듬
+            """
+            def load_data():
+                """각 채널에 해당하는 데이터들을 수집
+                """
+            def make_data():
+                """data(X에 해당)를 만듬
+                """
+            def make_targets():
+                """targets(Y에 해당)을 만듬
+                """
+        def save_as_file():
+            pass
+        def load_as_file():
+            pass
+
+        if self.make_new:
+            make_dataset()
+            save_as_file()
+        else:
+            load_as_file()
 
 
 
