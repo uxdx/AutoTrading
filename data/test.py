@@ -39,3 +39,5 @@ class MarketDataTest(unittest.TestCase):
 class DatasetsTest(unittest.TestCase):
     def test_(self):
         pass
+
+unittest.main()

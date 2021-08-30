@@ -18,15 +18,19 @@ model:
         1~2단계 차이정도라면 함수값이 너무 커서는 안됨.
 
 
-
+학습시키고, 저장
 
 """
+from nn.models import NeuralNetwork
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets
+from torchvision.transforms import ToTensor, Lambda, Compose
 from torch.autograd import Variable
 from data.datasets import CustomDataset
 
@@ -35,7 +39,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device
 # print(torch.cuda.get_device_name(0))
 class Trainer:
     def __init__(self) -> None:
-        self.dataframe = None
         self.hyper_parameters = {
             'epochs' : 10000,
             'learning_rate' : 0.001,
@@ -110,5 +113,76 @@ class Trainer:
             if epoch % 100 == 0:
                 print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
     def plot(self):
-        # 예측 결과 출력
+        # 학습 결과 출력
         pass
+
+class MNISTTrainer:
+    def __init__(self) -> None:
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.batch_size = 64
+    def fit(self):
+        epochs = 5
+        for t in range(epochs):
+            self.data_setting()
+            self.functions_setting()
+            self.train(self.train_dataloader)
+            self.test(self.test_dataloader)
+            self.save()
+        print("Done!")
+    def data_setting(self):
+        training_data = datasets.FashionMNIST(
+            root="data",
+            train=True,
+            download=True,
+            transform=ToTensor(),
+        )
+        # Download test data from open datasets.
+        test_data = datasets.FashionMNIST(
+            root="data",
+            train=False,
+            download=True,
+            transform=ToTensor(),
+        )
+        self.train_dataloader = DataLoader(training_data, batch_size=self.batch_size)
+        self.test_dataloader = DataLoader(test_data, batch_size=self.batch_size)
+    
+    def functions_setting(self):
+        self.loss_fn = nn.CrossEntropyLoss()
+        self.model = NeuralNetwork()
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=1e-3)
+
+    def train(self, dataloader):
+        size = len(dataloader.dataset)
+        self.model.train()
+        for batch, (X, y) in enumerate(dataloader):
+            X, y = X.to(device), y.to(device)
+
+            # Compute prediction error
+            pred = self.model(X)
+            loss = self.loss_fn(pred, y)
+
+            # Backpropagation
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+            if batch % 100 == 0:
+                loss, current = loss.item(), batch * len(X)
+                print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+    def test(self, dataloader):
+        size = len(dataloader.dataset)
+        num_batches = len(dataloader)
+        self.model.eval()
+        test_loss, correct = 0, 0
+        with torch.no_grad():
+            for X, y in dataloader:
+                X, y = X.to(device), y.to(device)
+                pred = self.model(X)
+                test_loss += self.loss_fn(pred, y).item()
+                correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+        test_loss /= num_batches
+        correct /= size
+        print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    def save(self):
+        torch.save(self.model.state_dict(), "model.pth")
+        print("Saved PyTorch Model State to model.pth")
