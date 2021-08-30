@@ -1,11 +1,11 @@
-"""모듈 및 함수 검증을 위한 테스트 코드
+"""data module tester
 """
 import time
 import numpy as np
 import pandas as pd
 from requests.api import options
-from utils.datasetmaker import Controller, PastFuture
-from utils.marketdata import MarketDataProvider
+from data.datasetmaker import Controller, PastFuture
+from data.marketdata import MarketDataProvider
 from datasets import CustomDataset
 
 from typing import List
@@ -52,22 +52,3 @@ def dataset_maker_tester():
         'future_length' : 5,
     }
     controller.construct_dataset(PastFuture, **options)
-
-def softmax_custom(x:np.ndarray):
-    x = np.where(x < 0, -1 * np.exp(-x), np.exp(x))
-    print(x)
-    sum = np.sum(np.abs(x))
-    print(sum)
-    return  x / sum
-if __name__ == '__main__':
-    import torch
-    from torch.autograd import Variable
-
-    x = Variable(torch.ones(2,2), requires_grad=True)
-    print(x)
-    print(x.grad_fn)
-    y = x * x * 3
-    out = y.mean()
-
-    out.backward()
-    print(x.grad)

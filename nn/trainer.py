@@ -12,7 +12,7 @@ LSTM? RNN?
 
 정확도 6할이 목표임.
 
-NETWORK:
+model:
     Loss_Func:
         예측값이 실제값과 차이가 있으면 차이가 난 정도에 비례해서 손실함수가 커지지만,
         1~2단계 차이정도라면 함수값이 너무 커서는 안됨.
@@ -28,12 +28,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from datasets import CustomDataset
+from data.datasets import CustomDataset
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device
 # print(torch.cuda.get_device_name(0))
-class Simulator:
+class Trainer:
     def __init__(self) -> None:
         self.dataframe = None
         self.hyper_parameters = {
@@ -48,16 +48,16 @@ class Simulator:
         self.X = None
         self.y = None
         #Functions
-        self.network = None
+        self.model = None
         self.loss_function = None
         self.optimizer = None
 
-    def simulate(self):
+    def train(self):
         self.data_setting()
         # self.parameters_setting()
         # self.functions_setting()
-        # self.learning()
-        # self.predict()
+        # self.fit()
+        # self.plot()
 
     def data_setting(self):
         dataset = CustomDataset(make_new=False)
@@ -92,14 +92,14 @@ class Simulator:
 
         self.hyper_parameters['num_classes'] = 1 #number of output classes
     def functions_setting(self):
-        self.network = None
+        self.model = None
         self.loss_function = None
         self.optimizer = None
 
-    def learning(self):
+    def fit(self):
         ### 학습
         for epoch in range(self.hyper_parameters['num_epochs']):
-            outputs = self.network.forward(self.X_train_tensors.to(device)) #forward pass
+            outputs = self.model.forward(self.X_train_tensors.to(device)) #forward pass
             self.optimizer.zero_grad() #caluclate the gradient, manually setting to 0
 
             # obtain the loss function
@@ -109,11 +109,6 @@ class Simulator:
             self.optimizer.step() #improve from loss, i.e backprop
             if epoch % 100 == 0:
                 print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
-    def predict(self):
-        # 예측
+    def plot(self):
+        # 예측 결과 출력
         pass
-if __name__ == '__main__':
-    Simulator().simulate()
-
-
-
