@@ -2,7 +2,7 @@
 """
 from numpy import longlong
 import pandas as pd
-from utils.share import datetime_to_unixtime, to_thousands
+from data.share import datetime_to_unixtime, to_thousands
 
 class MarketDataProvider:
     """

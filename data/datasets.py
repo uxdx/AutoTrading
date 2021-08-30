@@ -12,7 +12,7 @@ binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
 import os
 
 from numpy import ndarray
-from utils.marketdata import MarketDataProvider
+from data.marketdata import MarketDataProvider
 import pandas as pd
 import numpy as np
 import torch

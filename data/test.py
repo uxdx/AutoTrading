@@ -4,9 +4,8 @@ import time
 import numpy as np
 import pandas as pd
 from requests.api import options
-from data.datasetmaker import Controller, PastFuture
 from data.marketdata import MarketDataProvider
-from datasets import CustomDataset
+from data.datasets import CustomDataset
 from typing import List
 import unittest
 
