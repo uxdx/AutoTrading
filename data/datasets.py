@@ -120,18 +120,38 @@ class CustomDataset2(Dataset):
     """
     def __init__(self) -> None:
         super().__init__()
+        self.pa_len = 26
+        self.fu_len = 9
+        self.channel_size = 2
+
+        self.data = np.empty([0,self.channel_size, self.pa_len]) # (N, 2, 26)
+        self.dataframes:list[pd.DataFrame] = []
         self.load_dataset()
 
     def load_dataset(self):
         def make_dataset():
             """데이터로 데이터셋을 만듬
             """
+            self.data = np.empty([0,self.channel_size,self.pa_len])
             def load_data():
                 """각 채널에 해당하는 데이터들을 수집
+                데이터들의 타입: dataframe
                 """
+                self.dataframes = [
+                    MarketDataProvider().request_data(label='open'),
+                    MarketDataProvider().request_data(label='volume')
+                ]
             def make_data():
                 """data(X에 해당)를 만듬
                 """
+                idx = 0
+                while idx + self.pa_len <= len(self.dataframes):
+                    nparray = np.empty([0,self.pa_len])
+                    for dataframe in self.dataframes:
+                        np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,26), axis=0) # (1, pa_len)
+                    nparray = nparray.reshape(1,self.channel_size,self.pa_len) # (C, pa_len) -> (1, C, pa_len)
+                    np.append(self.data, nparray, axis=0) # (N, C, pa_len) -> (N+1, C, pa_len)
+                    idx += 1
             def make_targets():
                 """targets(Y에 해당)을 만듬
                 """

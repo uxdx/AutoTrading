@@ -42,24 +42,33 @@ class Binance(Market):
         """Get Data from index and label
         """
         if start_str is None and end_str is None:
-            return self.dataframe # All the data
-        start_unix = self.dataframe.index[0] if start_str is None else to_thousands(datetime_to_unixtime(start_str))
-        end_unix = self.dataframe.index[-1] if end_str is None else to_thousands(datetime_to_unixtime(end_str))
-        data = self._slice_data_from_index(self.dataframe,start_unix, end_unix)
+            data = self.dataframe
+        else:
+            start_unix = self.dataframe.index[0] if start_str is None else to_thousands(datetime_to_unixtime(start_str))
+            end_unix = self.dataframe.index[-1] if end_str is None else to_thousands(datetime_to_unixtime(end_str))
+            data = self._slice_data_from_index(self.dataframe,start_unix, end_unix)
         data = self._slice_data_from_label(data, label)
         return data
     def _slice_data_from_index(self, df:pd.DataFrame,start_unix:int,end_unix:int) -> pd.DataFrame:
-        return df.loc[start_unix:end_unix]
+        return df.loc[start_unix:end_unix].copy()
     def _slice_data_from_label(self, df:pd.DataFrame, label:str):
         if label == 'price':
             return df[['open', 'high', 'low', 'close']]
+        elif label == 'open':
+            return df['open']
+        elif label == 'high':
+            return df['high']
+        elif label == 'low':
+            return df['low']
+        elif label == 'close':
+            return df['close']
         elif label == 'volume':
             return df['Volume USDT']
         else:
             raise NameError(label)
     def load_dataframe(self) -> None:
         self._read_csv_file() #1
-        self._astype_unixcolumn_to_int() #2
+        self._type_setting() #2
         self._set_index_as_unix() #3
         self._reverse() #4
         assert self.dataframe is not None
@@ -70,7 +79,9 @@ class Binance(Market):
             print("File not found.", './assets/Binance_{}_{}.csv'.format(self.symbol, self.interval))
             import sys
             sys.exit(0)
-    def _astype_unixcolumn_to_int(self) -> None: #2
+    def _type_setting(self) -> None: #2
+        self.dataframe = self.dataframe.astype('float32')
+        # print(self.dataframe.isnull().values.any())
         self.dataframe = self.dataframe.astype({'unix':longlong}) # float to int (소수점 없애고 정수화)
     def _set_index_as_unix(self) -> None: #3
         self.dataframe = self.dataframe.set_index('unix')
