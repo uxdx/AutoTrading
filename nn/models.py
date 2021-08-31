@@ -14,6 +14,7 @@ class Network(nn.Module):
         self.device = device
 
         self.layers = [
+            nn.LSTM(input_size,hidden_size),
             nn.Linear(input_size,hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 128), #fully connected 1
@@ -50,3 +51,34 @@ class NeuralNetwork(nn.Module):
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
+rnn_type='LSTM'
+lstm = getattr(nn, rnn_type)(60, 20, 1, batch_first=True, dropout=0.2, bidirectional=1)
+class SingleRNN(nn.Module):
+    """
+    Container module for a single RNN layer.
+    
+    args:
+        rnn_type: string, select from 'RNN', 'LSTM' and 'GRU'.
+        input_size: int, dimension of the input feature. The input should have shape 
+                    (batch, seq_len, input_size).
+        hidden_size: int, dimension of the hidden state. 
+        dropout: float, dropout ratio. Default is 0.
+        bidirectional: bool, whether the RNN layers are bidirectional. Default is False.
+    """
+
+    def __init__(self, rnn_type, input_size, hidden_size, dropout=0, bidirectional=False):
+        super(SingleRNN, self).__init__()
+        
+        self.rnn_type = rnn_type
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_direction = int(bidirectional) + 1
+        
+        self.rnn = getattr(nn, rnn_type)(input_size, hidden_size, 1, dropout=dropout, batch_first=True, bidirectional=bidirectional)
+
+
+    def forward(self, input):
+        # input shape: batch, seq, dim
+        output = input
+        rnn_output, _ = self.rnn(output)
+        return rnn_output

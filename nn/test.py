@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 from nn.trainer import Trainer
-from nn.importmodels import NeuralNetwork
+from nn.models import NeuralNetwork
 # Download training data from open datasets.
 class TestNN:
     def __init__(self) -> None:
