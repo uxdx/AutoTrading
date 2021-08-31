@@ -12,6 +12,7 @@ binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
 import os
 
 from numpy import ndarray
+from torch.utils import data
 from data.marketdata import MarketDataProvider
 import pandas as pd
 import numpy as np
@@ -118,13 +119,15 @@ class CustomDataset2(Dataset):
         y = []
     
     """
-    def __init__(self) -> None:
+    def __init__(self, make_new:bool=False) -> None:
         super().__init__()
         self.pa_len = 26
         self.fu_len = 9
         self.channel_size = 2
+        self.make_new = make_new
 
         self.data = np.empty([0,self.channel_size, self.pa_len]) # (N, 2, 26)
+        self.targets = np.empty([0,self.fu_len]) # (N, 9)
         self.dataframes:list[pd.DataFrame] = []
         self.load_dataset()
 
@@ -132,7 +135,6 @@ class CustomDataset2(Dataset):
         def make_dataset():
             """데이터로 데이터셋을 만듬
             """
-            self.data = np.empty([0,self.channel_size,self.pa_len])
             def load_data():
                 """각 채널에 해당하는 데이터들을 수집
                 데이터들의 타입: dataframe
@@ -141,20 +143,33 @@ class CustomDataset2(Dataset):
                     MarketDataProvider().request_data(label='open'),
                     MarketDataProvider().request_data(label='volume')
                 ]
-            def make_data():
+            def make_data(idx:int):
                 """data(X에 해당)를 만듬
                 """
-                idx = 0
-                while idx + self.pa_len <= len(self.dataframes):
-                    nparray = np.empty([0,self.pa_len])
-                    for dataframe in self.dataframes:
-                        np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,26), axis=0) # (1, pa_len)
-                    nparray = nparray.reshape(1,self.channel_size,self.pa_len) # (C, pa_len) -> (1, C, pa_len)
-                    np.append(self.data, nparray, axis=0) # (N, C, pa_len) -> (N+1, C, pa_len)
-                    idx += 1
-            def make_targets():
+                nparray = np.empty([0,self.pa_len])
+                for dataframe in self.dataframes:
+                    nparray = np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,26), axis=0) # (1, pa_len)
+                nparray = nparray.reshape(1,self.channel_size,self.pa_len) # (C, pa_len) -> (1, C, pa_len)
+                self.data = np.append(self.data, nparray, axis=0)
+
+            def make_targets(idx):
                 """targets(Y에 해당)을 만듬
                 """
+                total_len = self.pa_len + self.fu_len
+                array = self.dataframes[0].iloc[idx+self.pa_len:idx+total_len].to_numpy()
+                array = (array-array[0])/array[0]
+                self.targets = np.append(self.targets,array.reshape(1,self.fu_len), axis=0)
+
+            load_data()
+            idx = 0
+            while idx + self.pa_len + self.fu_len <= len(self.dataframes[0]):
+                make_data(idx)
+                make_targets(idx)
+
+                if idx % 1000 == 0:
+                    print(idx,'/',len(self.dataframes[0]))
+                idx += 1
+            print('Make data set!')
         def save_as_file():
             pass
         def load_as_file():
