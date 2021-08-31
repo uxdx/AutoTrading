@@ -171,9 +171,13 @@ class CustomDataset2(Dataset):
                 idx += 1
             print('Make data set!')
         def save_as_file():
-            pass
+            np.savez_compressed('./assets/CustomDataset2',data=self.data,targets=self.targets)
+            print('Dataset Saved.')
         def load_as_file():
-            pass
+            loaded = np.load('./assets/CustomDataset2.npz')
+            self.data = loaded['data']
+            self.targets = loaded['targets']
+            print('Dataset Loaded.')
 
         if self.make_new:
             make_dataset()
