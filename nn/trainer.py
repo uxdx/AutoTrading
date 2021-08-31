@@ -21,7 +21,8 @@ model:
 학습시키고, 저장
 
 """
-from nn.models import NeuralNetwork
+from torch.optim.optimizer import Optimizer
+from nn.models import Network, NeuralNetwork
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -33,12 +34,14 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor, Lambda, Compose
 from torch.autograd import Variable
 from data.datasets import CustomDataset
-
+from torch.utils.data import Dataset
+from torch import optim
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device
 # print(torch.cuda.get_device_name(0))
 class Trainer:
-    def __init__(self) -> None:
+    def __init__(self,dataset:Dataset,batch_size=30) -> None:
+        self.batch_size = batch_size
         self.hyper_parameters = {
             'epochs' : 10000,
             'learning_rate' : 0.001,
@@ -48,56 +51,43 @@ class Trainer:
             'num_classes' : 1,
 
         }
-        self.X = None
-        self.y = None
         #Functions
-        self.model = None
+        self.dataset = dataset
+        self.model:nn.Module = None
         self.loss_function = None
-        self.optimizer = None
+        self.optimizer:Optimizer = None
 
     def train(self):
         self.data_setting()
-        # self.parameters_setting()
+        self.parameters_setting()
         # self.functions_setting()
         # self.fit()
         # self.plot()
 
     def data_setting(self):
-        dataset = CustomDataset(make_new=False)
-        X = dataset.data
-        y = dataset.targets
+        X, y = np.random.permutation(self.dataset.data), np.random.permutation(self.dataset.targets) # 랜덤섞기
+        self.X_train = X[:33000]
+        self.X_test = X[33000:]
 
-        # Train Data
-        X_train = X[:33000]
-        X_test = X[33000:]
-
-        y_train = y[:33000]
-        y_test = y[33000:]
-        print("Training Shape", X_train.shape, y_train.shape)
-        print("Testing Shape", X_test.shape, y_test.shape)
-
-        self.y_train_tensors = None
-        self.y_test_tensors = None
-        print("Training Shape", self.X_train_tensors.shape, self.y_train_tensors.shape)
-        print("Testing Shape", self.X_test_tensors.shape, self.y_test_tensors.shape)
-
-
-
+        self.y_train = y[:33000]
+        self.y_test = y[33000:]
+        print("Training Shape", self.X_train.shape, self.y_train.shape)
+        print("Testing Shape", self.X_test.shape, self.y_test.shape)
 
     def parameters_setting(self):
         # 파라미터 구성
         self.hyper_parameters['num_epochs'] = 30000 #1000 epochs
         self.hyper_parameters['learning_rate'] = 0.00001 #0.001 lr
-
-        self.hyper_parameters['input_size'] = 3 #number of features
-        self.hyper_parameters['hidden_size'] = 2 #number of features in hidden state
+        self.hyper_parameters['input_size'] = 26
+        self.hyper_parameters['hidden_size'] = 50
+        self.hyper_parameters['feature_length'] = 2
         self.hyper_parameters['num_layers'] = 1 #number of stacked lstm layers
 
         self.hyper_parameters['num_classes'] = 1 #number of output classes
     def functions_setting(self):
-        self.model = None
+        self.model = Network(self.hyper_parameters['input_size'], self.hyper_parameters['hidden_size'],self.hyper_parameters['feature_length'])
         self.loss_function = None
-        self.optimizer = None
+        self.optimizer = optim.Adam(self.model.parameters())
 
     def fit(self):
         ### 학습

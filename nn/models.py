@@ -2,29 +2,23 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+from torch.nn.modules import dropout
 from torch.nn.modules.linear import Linear
 
 class Network(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, seq_length, device):
+    def __init__(self, input_size, hidden_size, feature_length):
         super(Network, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size #hidden state
-        self.output_size = output_size
-        self.seq_length = seq_length # sequence length
-        self.device = device
+        self.feature_length = feature_length # sequence length
 
         self.layers = [
-            nn.LSTM(input_size,hidden_size),
-            nn.Linear(input_size,hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, 128), #fully connected 1
-            nn.ReLU(),
-            nn.Linear(128, output_size), #fully connected last layer
-            nn.ReLU(),
+            nn.LSTM(input_size,hidden_size,2, dropout=0.2,batch_first=True)
         ]
         self.loss_layer = nn.AdaptiveLogSoftmaxWithLoss(input_size, output_size,)
 
     def predict(self, x):
+        # input shape: (batch_size, feature_length, input_size) e.g. (10, 2, 26)
         for layer in self.layers:
             x = layer.forward()
         return x
