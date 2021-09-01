@@ -2,3 +2,4 @@ __pycache__/
 memo.txt
 temp/
 assets/*.bin
+assets/*.csv
