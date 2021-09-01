@@ -74,9 +74,9 @@ class Binance(Market):
         assert self.dataframe is not None
     def _read_csv_file(self) -> None: #1
         try:
-            self.dataframe = pd.read_csv('./assets/Binance_{}_{}-re.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume USDT'])
+            self.dataframe = pd.read_csv('./assets/Binance_{}_{}-m.csv'.format(self.symbol, self.interval), usecols=['unix', 'open', 'high', 'low', 'close', 'Volume USDT'])
         except FileNotFoundError:
-            print("File not found.", './assets/Binance_{}_{}.csv'.format(self.symbol, self.interval))
+            print("File not found.", './assets/Binance_{}_{}-m.csv'.format(self.symbol, self.interval))
             import sys
             sys.exit(0)
     def _type_setting(self) -> None: #2

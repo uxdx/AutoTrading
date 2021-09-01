@@ -16,21 +16,26 @@ if __name__ == '__main__':
     # print(arr)
     # arr = arr.reshape(1, 10)
     # print(arr.shape)
-    dataset = CustomDataset(False)
+    dataset = CustomDataset(make_new=True, normalize=True, to_tensor=False)
     print(dataset.data.shape)
     print(dataset.targets.shape)
-    dataset.targets = (dataset.targets * 100)
-
-    random_index = np.random.choice(dataset.__len__(),size=10, replace=False)
-    print(random_index)
-    sample_data,sample_targets = dataset.data[random_index], dataset.targets[random_index]
-    tensor_data = torch.from_numpy(sample_data).float()
-    tensor_targets = torch.from_numpy(sample_targets).float()
-    print(tensor_data.shape)
-    batch_size, feature_size, input_size = sample_data.shape
-    hidden_size = 50
-    num_layer = 2
-    import torch.nn as nn
-    model = nn.LSTM(input_size,hidden_size,num_layer,batch_first=True)
-    output, _ = model(tensor_data)
-    print(output)
+    print(dataset.targets.max())
+    print(dataset.targets.min())
+    print(np.where(np.isnan(dataset.data)))
+    # tensor_data = torch.from_numpy(dataset.data).float()
+    # tensor_targets = torch.from_numpy(dataset.targets).float()
+    # print(tensor_data.shape)
+    # print(tensor_targets.shape)
+    # random_index = np.random.choice(dataset.__len__(),size=10, replace=False)
+    # print(random_index)
+    # sample_data,sample_targets = dataset.data[random_index], dataset.targets[random_index]
+    # tensor_data = torch.from_numpy(sample_data).float()
+    # tensor_targets = torch.from_numpy(sample_targets).float()
+    # print(tensor_data.shape)
+    # batch_size, feature_size, input_size = sample_data.shape
+    # hidden_size = 50
+    # num_layer = 2
+    # import torch.nn as nn
+    # model = nn.LSTM(input_size,hidden_size,num_layer,batch_first=True)
+    # output, _ = model(tensor_data)
+    # print(output)

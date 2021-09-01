@@ -43,10 +43,10 @@ class CustomDataset(Dataset):
         y = []
     
     """
-    def __init__(self, make_new:bool=False) -> None:
+    def __init__(self, make_new:bool=False, to_tensor:bool=False, normalize:bool=False) -> None:
         super().__init__()
         self.pa_len = 26
-        self.fu_len = 9
+        self.fu_len = 26
         self.channel_size = 2
         self.make_new = make_new
 
@@ -54,7 +54,11 @@ class CustomDataset(Dataset):
         self.targets = np.empty([0,self.fu_len-1]) # (N, 9-1)
         self.dataframes:list[pd.DataFrame] = []
         self.load_dataset()
-
+        if normalize:
+            self.data_normalization()
+        if to_tensor:
+            self.data = torch.from_numpy(self.data).float()
+            self.targets = torch.from_numpy(self.targets).float()
     def load_dataset(self):
         def make_dataset():
             """데이터로 데이터셋을 만듬
@@ -72,7 +76,7 @@ class CustomDataset(Dataset):
                 """
                 nparray = np.empty([0,self.pa_len])
                 for dataframe in self.dataframes:
-                    nparray = np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,26), axis=0) # (1, pa_len)
+                    nparray = np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,self.pa_len), axis=0) # (1, pa_len)
                 nparray = nparray.reshape(1,self.channel_size,self.pa_len) # (C, pa_len) -> (1, C, pa_len)
                 self.data = np.append(self.data, nparray, axis=0)
 
@@ -112,7 +116,16 @@ class CustomDataset(Dataset):
         else:
             load_as_file()
 
-
+    def data_normalization(self):
+        print(self.__len__())
+        for i in range(self.__len__()):
+            for j in range(self.channel_size):
+                arr:ndarray = self.data[i,j,:]
+                mean = arr.mean()
+                std = arr.std()
+                assert std != 0
+                arr = (arr - mean)/std
+                self.data[i,j,:] = arr
 
 
     def __len__(self):
