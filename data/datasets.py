@@ -6,7 +6,7 @@ End Point Usage Example
 ---------------
 from THIS import datasets
 
-binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',\
+binance_data = datasets.PastFuture(symbol='BTCUSDT',interval='1d',
     start='2018-01-01 00:00:00', end='2021-01-01 00:00:00')
 """
 import os
@@ -43,7 +43,7 @@ class CustomDataset(Dataset):
         y = []
     
     """
-    def __init__(self, make_new:bool=False, to_tensor:bool=False, normalize:bool=False) -> None:
+    def __init__(self, make_new:bool=False, to_tensor:bool=False, normalize:bool=False, train:bool=False) -> None:
         super().__init__()
         self.pa_len = 26
         self.fu_len = 26
@@ -56,6 +56,13 @@ class CustomDataset(Dataset):
         self.load_dataset()
         if normalize:
             self.data_normalization()
+        self.separate_train_test()
+        if train:
+            self.data = self.train_data
+            self.targets = self.train_targets
+        else:
+            self.data = self.test_data
+            self.targets = self.test_targets
         if to_tensor:
             self.data = torch.from_numpy(self.data).float()
             self.targets = torch.from_numpy(self.targets).float()
@@ -101,10 +108,10 @@ class CustomDataset(Dataset):
                 idx += 1
             print('Make data set!')
         def save_as_file():
-            np.savez_compressed('./assets/CustomDataset',data=self.data,targets=self.targets)
+            np.savez_compressed('./assets/{}'.format(self.__class__.__name__),data=self.data,targets=self.targets)
             print('Dataset Saved.')
         def load_as_file():
-            loaded = np.load('./assets/CustomDataset.npz')
+            loaded = np.load('./assets/{}.npz'.format(self.__class__.__name__))
             self.data = loaded['data']
             self.targets = loaded['targets']
             assert len(self.targets) == len(self.data)
@@ -117,7 +124,6 @@ class CustomDataset(Dataset):
             load_as_file()
 
     def data_normalization(self):
-        print(self.__len__())
         for i in range(self.__len__()):
             for j in range(self.channel_size):
                 arr:ndarray = self.data[i,j,:]
@@ -126,8 +132,13 @@ class CustomDataset(Dataset):
                 assert std != 0
                 arr = (arr - mean)/std
                 self.data[i,j,:] = arr
-
-
+    def separate_train_test(self):
+        testset_ratio = 0.2
+        separate_line = int(self.__len__()* (1-testset_ratio))
+        self.train_data = self.data[:separate_line]
+        self.train_targets = self.targets[:separate_line]
+        self.test_data = self.data[separate_line:]
+        self.test_targets = self.targets[separate_line:]
     def __len__(self):
         return len(self.targets)
     def __getitem__(self, index) -> Tuple[Any, Any]:

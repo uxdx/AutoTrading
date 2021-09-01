@@ -1,6 +1,7 @@
-from numpy.random.mtrand import random_integers
 import torch
+from torch import nn, optim
 from torch.utils import data
+from torch.utils.data import dataloader
 from torchvision.transforms.transforms import ToTensor
 from data.datasets import CustomDataset
 from nn.trainer import MNISTTrainer
@@ -16,26 +17,31 @@ if __name__ == '__main__':
     # print(arr)
     # arr = arr.reshape(1, 10)
     # print(arr.shape)
-    dataset = CustomDataset(make_new=True, normalize=True, to_tensor=False)
-    print(dataset.data.shape)
-    print(dataset.targets.shape)
-    print(dataset.targets.max())
-    print(dataset.targets.min())
-    print(np.where(np.isnan(dataset.data)))
-    # tensor_data = torch.from_numpy(dataset.data).float()
-    # tensor_targets = torch.from_numpy(dataset.targets).float()
-    # print(tensor_data.shape)
-    # print(tensor_targets.shape)
-    # random_index = np.random.choice(dataset.__len__(),size=10, replace=False)
-    # print(random_index)
-    # sample_data,sample_targets = dataset.data[random_index], dataset.targets[random_index]
-    # tensor_data = torch.from_numpy(sample_data).float()
-    # tensor_targets = torch.from_numpy(sample_targets).float()
-    # print(tensor_data.shape)
-    # batch_size, feature_size, input_size = sample_data.shape
-    # hidden_size = 50
-    # num_layer = 2
-    # import torch.nn as nn
-    # model = nn.LSTM(input_size,hidden_size,num_layer,batch_first=True)
-    # output, _ = model(tensor_data)
-    # print(output)
+    torch.set_default_dtype(torch.float32)
+    train_dataset = CustomDataset(make_new=False, normalize=True, to_tensor=True, train=True)
+    print(train_dataset.data.shape)
+    print(train_dataset.targets.shape)
+    print(train_dataset.targets.max())
+    print(train_dataset.targets.min())
+
+    data_loader = data.DataLoader(dataset=train_dataset,batch_size=64,shuffle=True)
+
+    net = nn.Linear(52, 25)
+    loss_fn = nn.BCEWithLogitsLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.01)
+    losses = []
+    for epoc in range(100):
+        batch_loss = 0.0
+        for xx, yy in data_loader:
+            xx = torch.reshape(xx, (xx.shape[0], 52))
+            optimizer.zero_grad()
+            y_pred = net(xx)
+            loss = loss_fn(y_pred, yy)
+            loss.backward()
+            optimizer.step()
+            batch_loss += loss.item()
+        print(batch_loss)
+        losses.append(batch_loss)
+    from matplotlib import pyplot as plt
+    plt.plot(losses)
+    plt.show()
