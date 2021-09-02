@@ -21,6 +21,7 @@ model:
 학습시키고, 저장
 
 """
+from torch.nn.modules.linear import Linear
 from torch.optim.optimizer import Optimizer
 from nn.models import Network, NeuralNetwork
 import numpy as np
@@ -37,75 +38,75 @@ from data.datasets import CustomDataset
 from torch.utils.data import Dataset
 from torch import optim
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device
+
 # print(torch.cuda.get_device_name(0))
 class Trainer:
-    def __init__(self,dataset:Dataset,batch_size=30) -> None:
-        self.batch_size = batch_size
-        self.hyper_parameters = {
-            'epochs' : 10000,
-            'learning_rate' : 0.001,
-            'input_size' : None,
-            'hidden_size' : None,
-            'num_layers' : 1,
-            'num_classes' : 1,
+    def __init__(self, make_new:bool=False) -> None:
+        self.batch_size = 1000
+        torch.set_default_dtype(torch.float32)
+        #data setting
+        train_dataset = CustomDataset(make_new=False, normalize=True, to_tensor=True, train=True)
+        test_dataset = CustomDataset(make_new=False, normalize=True, to_tensor=True, train=False)
+        self.data_loader_train = DataLoader(dataset=train_dataset,batch_size=self.batch_size,shuffle=True,num_workers = 4, pin_memory = True)
+        self.data_loader_test = DataLoader(dataset=test_dataset,batch_size=self.batch_size,shuffle=True,num_workers = 4, pin_memory = True)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # device
+        # self.device = torch.device("cpu")
+        print(self.device)
+        self.model = Linear(52, 25).to(self.device)
+        self.loss_fn = nn.BCEWithLogitsLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
 
-        }
-        #Functions
-        self.dataset = dataset
-        self.model:nn.Module = None
-        self.loss_function = None
-        self.optimizer:Optimizer = None
-
+        if make_new:
+            self.train()
+            self.save()
+        else:
+            self.load()
     def train(self):
-        self.data_setting()
-        self.parameters_setting()
-        # self.functions_setting()
-        # self.fit()
-        # self.plot()
-
-    def data_setting(self):
-        X, y = np.random.permutation(self.dataset.data), np.random.permutation(self.dataset.targets) # 랜덤섞기
-        self.X_train = X[:33000]
-        self.X_test = X[33000:]
-
-        self.y_train = y[:33000]
-        self.y_test = y[33000:]
-        print("Training Shape", self.X_train.shape, self.y_train.shape)
-        print("Testing Shape", self.X_test.shape, self.y_test.shape)
-
-    def parameters_setting(self):
-        # 파라미터 구성
-        self.hyper_parameters['num_epochs'] = 30000 #1000 epochs
-        self.hyper_parameters['learning_rate'] = 0.00001 #0.001 lr
-        self.hyper_parameters['input_size'] = 26
-        self.hyper_parameters['hidden_size'] = 50
-        self.hyper_parameters['feature_length'] = 2
-        self.hyper_parameters['num_layers'] = 1 #number of stacked lstm layers
-
-        self.hyper_parameters['num_classes'] = 1 #number of output classes
-    def functions_setting(self):
-        self.model = Network(self.hyper_parameters['input_size'], self.hyper_parameters['hidden_size'],self.hyper_parameters['feature_length'])
-        self.loss_function = None
-        self.optimizer = optim.Adam(self.model.parameters())
-
-    def fit(self):
-        ### 학습
-        for epoch in range(self.hyper_parameters['num_epochs']):
-            outputs = self.model.forward(self.X_train_tensors.to(device)) #forward pass
-            self.optimizer.zero_grad() #caluclate the gradient, manually setting to 0
-
-            # obtain the loss function
-            loss = self.loss_function(outputs, self.y_train_tensors.to(device))
-            loss.backward() #calculates the loss of the loss function
-
-            self.optimizer.step() #improve from loss, i.e backprop
-            if epoch % 100 == 0:
-                print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
+        self.losses = []
+        epoch = 1000
+        for epoc in range(epoch):
+            batch_loss = 0.0
+            for X, y in self.data_loader_train:
+                X, y = X.to(self.device), y.to(self.device)
+                self.optimizer.zero_grad()
+                X = X.reshape(X.shape[0], 52)
+                y_pred = self.model(X)
+                loss = self.loss_fn(y_pred, y)
+                loss.backward()
+                self.optimizer.step()
+                batch_loss += loss.item()
+            self.losses.append(batch_loss)
+            print(batch_loss)
+            print(epoc, '/', epoch)
+    def test(self):
+        device = 'cpu'
+        self.model.eval().to(device)
+        test_loss, correct = 0, 0
+        with torch.no_grad():
+            for X, y in self.data_loader_test:
+                X, y = X.to(device), y.to(device)
+                X = X.reshape(X.shape[0], 52)
+                pred = self.model(X)
+                test_loss += self.loss_fn(pred, y).item()
+                for i in range(self.batch_size):
+                    from matplotlib import pyplot as plt
+                    figure, axis = plt.subplots(1, 2)
+                    axis[0].plot(range(25), pred[i])
+                    axis[0].set_title("prediction")
+                    axis[1].plot(range(25), y[i])
+                    axis[1].set_title("real")
+                    plt.show()
+        print(test_loss)
     def plot(self):
-        # 학습 결과 출력
-        pass
+        from matplotlib import pyplot as plt
+        plt.plot(self.losses)
+        plt.show()
 
+    def save(self):
+        torch.save(self.model.state_dict(), 'model.pth')
+    def load(self):
+        self.model.load_state_dict(torch.load('model.pth'))
+        print('load succeed')
 class MNISTTrainer:
     def __init__(self) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"

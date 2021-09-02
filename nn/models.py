@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from torch.nn.modules import dropout
 from torch.nn.modules.linear import Linear
 
 class Network(nn.Module):
@@ -13,7 +12,7 @@ class Network(nn.Module):
         self.feature_length = feature_length # sequence length
 
         self.layers = [
-            nn.LSTM(input_size,hidden_size,2, dropout=0.2,batch_first=True)
+            nn.LSTM(input_size,hidden_size,2,batch_first=True)
         ]
         self.loss_layer = nn.AdaptiveLogSoftmaxWithLoss(input_size, output_size,)
 
@@ -33,11 +32,11 @@ class NeuralNetwork(nn.Module):
         super(NeuralNetwork, self).__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(26*2, 100),
+            nn.Linear(26*2, 16),
             nn.ReLU(),
-            nn.Linear(100, 50),
+            nn.Linear(16, 16),
             nn.ReLU(),
-            nn.Linear(50, 25),
+            nn.Linear(16, 25),
             nn.ReLU()
         )
 
@@ -46,7 +45,7 @@ class NeuralNetwork(nn.Module):
         logits = self.linear_relu_stack(x)
         return logits
 rnn_type='LSTM'
-lstm = getattr(nn, rnn_type)(60, 20, 1, batch_first=True, dropout=0.2, bidirectional=1)
+lstm = getattr(nn, rnn_type)(60, 20, 1, batch_first=True, bidirectional=1)
 class SingleRNN(nn.Module):
     """
     Container module for a single RNN layer.
@@ -60,7 +59,7 @@ class SingleRNN(nn.Module):
         bidirectional: bool, whether the RNN layers are bidirectional. Default is False.
     """
 
-    def __init__(self, rnn_type, input_size, hidden_size, dropout=0, bidirectional=False):
+    def __init__(self, rnn_type, input_size, hidden_size, bidirectional=False):
         super(SingleRNN, self).__init__()
         
         self.rnn_type = rnn_type
@@ -68,7 +67,7 @@ class SingleRNN(nn.Module):
         self.hidden_size = hidden_size
         self.num_direction = int(bidirectional) + 1
         
-        self.rnn = getattr(nn, rnn_type)(input_size, hidden_size, 1, dropout=dropout, batch_first=True, bidirectional=bidirectional)
+        self.rnn = getattr(nn, rnn_type)(input_size, hidden_size, 1, batch_first=True, bidirectional=bidirectional)
 
 
     def forward(self, input):
