@@ -50,8 +50,8 @@ class CustomDataset(Dataset):
         self.channel_size = 2
         self.make_new = make_new
 
-        self.data = np.empty([0,self.channel_size, self.pa_len]) # (N, 2, 26)
-        self.targets = np.empty([0,self.fu_len-1]) # (N, 9-1)
+        self.data = []
+        self.targets = []
         self.dataframes:list[pd.DataFrame] = []
         self.load_dataset()
         if normalize:
@@ -81,11 +81,11 @@ class CustomDataset(Dataset):
             def make_data(idx:int):
                 """data(X에 해당)를 만듬
                 """
-                nparray = np.empty([0,self.pa_len])
+                # nparray = np.empty([0,self.pa_len])
+                list = []
                 for dataframe in self.dataframes:
-                    nparray = np.append(nparray, dataframe.iloc[idx:idx+self.pa_len].to_numpy().reshape(1,self.pa_len), axis=0) # (1, pa_len)
-                nparray = nparray.reshape(1,self.channel_size,self.pa_len) # (C, pa_len) -> (1, C, pa_len)
-                self.data = np.append(self.data, nparray, axis=0)
+                    list.append(dataframe.iloc[idx:idx+self.pa_len].to_numpy())
+                self.data.append(list)
 
             def make_targets(idx):
                 """targets(Y에 해당)을 만듬
@@ -95,7 +95,7 @@ class CustomDataset(Dataset):
                 current = array[0]
                 array = array[1:]
                 array = (array-current)/current
-                self.targets = np.append(self.targets,array.reshape(1,self.fu_len-1), axis=0) # (1, self.fu_len-1)
+                self.targets.append(array)
 
             load_data()
             idx = 0
@@ -106,6 +106,9 @@ class CustomDataset(Dataset):
                 if idx % 1000 == 0:
                     print(idx,'/',len(self.dataframes[0]))
                 idx += 1
+            # list -> ndarray
+            self.data = np.array(self.data)
+            self.targets = np.array(self.targets)
             print('Make data set!')
         def save_as_file():
             np.savez_compressed('./assets/{}'.format(self.__class__.__name__),data=self.data,targets=self.targets)
