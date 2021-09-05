@@ -60,7 +60,6 @@ class CustomDataset(AbstractDataset):
 
         self.data = self.train_data if train else self.test_data
         self.targets = self.train_targets if train else self.test_targets
-        print(self.data[0])
         if normalize:
             self.data_normalization()
         if to_tensor:
@@ -108,7 +107,7 @@ class CustomDataset(AbstractDataset):
                 idx += 1
             # list -> ndarray
             self.data = np.array(self.data)
-            self.targets = np.array(self.targets)
+            self.targets = np.array(self.targets) * 10
             print('Make data set!')
         def save_as_file():
             np.savez_compressed('./assets/{}_{}'.format(self.__class__.__name__, self.interval),data=self.data,targets=self.targets)
@@ -147,3 +146,4 @@ class CustomDataset(AbstractDataset):
         self.train_targets = self.targets[:separate_line]
         self.test_data = self.data[separate_line:]
         self.test_targets = self.targets[separate_line:]
+

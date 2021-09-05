@@ -37,12 +37,15 @@ from torch.autograd import Variable
 from data.datasets import CustomDataset
 from torch.utils.data import Dataset
 from torch import optim
+from numpy import ndarray
 
-
-# print(torch.cuda.get_device_name(0))
+def get_answer(y:ndarray):
+    max = np.max(y)
+    min = np.min(y)
+    return np.argmax(y) if abs(max) >= abs(min) else np.argmin(y)
 class Trainer:
     def __init__(self, make_new:bool=False) -> None:
-        self.batch_size = 1000
+        self.batch_size = 100
         torch.set_default_dtype(torch.float32)
         #data setting
         train_dataset = CustomDataset(make_new=False, normalize=True, to_tensor=True, train=True)
@@ -52,9 +55,10 @@ class Trainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # device
         # self.device = torch.device("cpu")
         print(self.device)
-        self.model = Linear(52, 25).to(self.device)
+        # self.model = Linear(52, 25).to(self.device)
+        self.model = NeuralNetwork(52, 25).to(self.device)
         self.loss_fn = nn.BCEWithLogitsLoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.001)
 
         if make_new:
             self.train()
@@ -63,7 +67,7 @@ class Trainer:
             self.load()
     def train(self):
         self.losses = []
-        epoch = 1000
+        epoch = 150
         for epoc in range(epoch):
             batch_loss = 0.0
             for X, y in self.data_loader_train:
@@ -78,7 +82,7 @@ class Trainer:
             self.losses.append(batch_loss)
             print(batch_loss)
             print(epoc, '/', epoch)
-    def test(self):
+    def test(self, plot:bool=False):
         device = 'cpu'
         self.model.eval().to(device)
         test_loss, correct = 0, 0
@@ -88,15 +92,19 @@ class Trainer:
                 X = X.reshape(X.shape[0], 52)
                 pred = self.model(X)
                 test_loss += self.loss_fn(pred, y).item()
-                for i in range(self.batch_size):
-                    from matplotlib import pyplot as plt
-                    figure, axis = plt.subplots(1, 2)
-                    axis[0].plot(range(25), pred[i])
-                    axis[0].set_title("prediction")
-                    axis[1].plot(range(25), y[i])
-                    axis[1].set_title("real")
-                    plt.show()
+                for i in range(y.shape[0]):
+                    if plot:
+                        from matplotlib import pyplot as plt
+                        figure, axis = plt.subplots(1, 2)
+                        axis[0].plot(range(25), pred[i])
+                        axis[0].set_title("prediction")
+                        axis[1].plot(range(25), y[i])
+                        axis[1].set_title("real")
+                        plt.show()
+                    if get_answer(y[i].numpy()) == get_answer(pred[i].numpy()):
+                        correct += 1
         print(test_loss)
+        print(correct)
     def plot(self):
         from matplotlib import pyplot as plt
         plt.plot(self.losses)

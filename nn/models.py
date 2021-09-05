@@ -28,16 +28,15 @@ class Network(nn.Module):
         return loss
 
 class NeuralNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, output_size):
         super(NeuralNetwork, self).__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(26*2, 16),
+            nn.Linear(input_size, 16),
             nn.ReLU(),
             nn.Linear(16, 16),
             nn.ReLU(),
-            nn.Linear(16, 25),
-            nn.ReLU()
+            nn.Linear(16, output_size),
         )
 
     def forward(self, x):
